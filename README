@@ -1,1 +1,5 @@
-Todo
+Simple MVC Framework, influenced by (i.e. a worse version of) CodeIgniter, but aiming to keep the framework environment as minimal as possible so it can be easily recreated when running unit tests or CRON jobs from the command line so you don't have to abandon MVC principles or use framework specific libraries for those things. The _only_ things handled by the framework are class loading and URL routing, with the expectation that you'll handle your domain model with one of the many, many solutions available.
+
+Another aim is to not have to play around with config files, so the system infers your base URL based on the location of index.php in the URL. I don't know how compatible this is with URL rewriting though. The final goal is that third party libraries are very easy to integrate with, by allowing Autoloader classes to be dropped in to the Application/Loader directory so things just work. I'm still a bit unsure about my implementation of this, but the principle should remain.
+
+The repo consists of the Framework, which is only a few files to handle routing and loading, and a sample application which contains some useful libraries such as a View class and some autoloaders for common addons.

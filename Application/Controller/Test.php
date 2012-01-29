@@ -12,9 +12,9 @@ use Framework\Loader;
 class Test {
 
     /**
-     * @var \Framework\Loader
+     * @var \Application\View
      */
-    private $loader;
+    private $view;
 
     /**
      * @var \Application\Model\Data
@@ -30,10 +30,7 @@ class Test {
 
         //initialisation
         $this->view = new View();
-        $this->loader = Loader::getInstance();
         $this->model = new Data();
-
-        //header viewscript.
         $this->view->addScript('View/Header.phtml');
     }
 
