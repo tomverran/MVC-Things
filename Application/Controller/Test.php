@@ -32,14 +32,13 @@ class Test {
         $this->view = new View();
         $this->model = new Data();
         $this->view->addScript('View/Header.phtml');
+        $this->view['url'] = 'http://localhost/YetAnother/';
     }
 
-    /**
-     * Action method that
-     * is automatically invoked.
-     */
-    public function hello() {
-        $this->view['message'] = array_pop($this->model->getData());
+    public function index() {
+        $this->view['method'] = \Framework\Router::getInstance()->getMethod();
+        $this->view['controller'] = \Framework\Router::getInstance()->getController();
+        $this->view['params'] = implode(',',\Framework\Router::getInstance()->getParams());
         $this->view->addScript('View/Test.phtml');
     }
 

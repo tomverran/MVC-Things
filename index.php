@@ -5,7 +5,6 @@
 
     //handle URI routing
     $router = Framework\Router::getInstance();
-    $router->setUri($_SERVER['REQUEST_URI']);
     $uriController = Framework\Loader::APP_DIR.'\Controller\\'.$router->getController();
 
     //create controller

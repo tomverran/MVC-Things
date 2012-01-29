@@ -8,74 +8,45 @@ namespace Framework;
  */
 class Router extends Singleton {
 
-    private $uri;
-    private $bootstrap = 'index.php';
     private $controller;
-    private $appPath;
     private $method;
     private $params;
 
-    /**
-     * Set the name of our MVC bootstrap file so we can
-     * ignore all directories and such prior to it.
-     * @param $bootstrap
-     */
-    public function setBootstrapName($bootstrap) {
-        $this->bootstrap = $bootstrap;
+    protected function __construct() {
+        parent::__construct();
+        $this->parse();
     }
 
     /**
-     * Set a URI to parse.
-     * @param $uri
+     * Parse $_SERVER['REQUEST_URI'] extracting
+     * controller and method routing information.
      */
-    public function setUri($uri) {
-        $this->uri = $uri;
-        $this->parse($uri);
-    }
+    private function parse() {
 
-    /**
-     * Parse a URI, extracting a controller, method and params
-     * @param $uri the URI to parse.
-     */
-    private function parse($uri) {
+        $matches = array(); //get only arguments passed via slashes by diffing against SCRIPT_NAME
+        preg_match('/'.preg_quote($_SERVER['SCRIPT_NAME'],'/').'(.*)/',$_SERVER['REQUEST_URI'],$matches);
 
-        //strip out GET arguments
-        $uri = array_shift(explode('?',$uri));
-
-        //find position of bootstrap and ignore all before
-        $parts = array_filter(explode('/',$uri));
-        $pos = array_search('index.php',$parts);
-
-        //get and format to camelcase the controller
-        if ($pos) {
-            $trimmedParts = array_slice($parts,$pos);
-            $this->appPath = implode('/',array_slice($parts,0,$pos)).'/';
-            if (count($trimmedParts))$this->controller = self::camelCase(array_shift($trimmedParts));
-            if (count($trimmedParts)) $this->method = self::camelCase(array_shift($trimmedParts),false);
+        if (count($matches) > 1) {
+            $trimmedParts = array_filter(explode('/',$matches[1]));
+            $this->controller = self::camelCase(array_shift($trimmedParts));
+            $this->method = self::camelCase(array_shift($trimmedParts),false);
+            if (!$this->method) $this->method = 'index';
             $this->params = $trimmedParts;
         }
     }
 
     /**
-     * Convert an arbitary string to a CamelCase one.
-     * @static.
+     * Convert a string to a CamelCase one.
      * @param $word the word(s) to convert over
      * @param bool $capital whether to capitalise the first letter (camelCase v CamelCase)
      * @return mixed the fixed string.
+     * @static.
      */
     private static function camelCase($word, $capital=true) {
         $regex = $capital ? '/([^A-Za-z]|^)(\w)/' : '/[^A-Za-z](\w)/';
         return preg_replace_callback($regex,function($match) {
             return strtoupper(array_pop($match)); //can this be done in pure regex?
         }, $word);
-    }
-
-    /**
-     * Get the base URL.
-     * @return mixed
-     */
-    public function getBaseUrl() {
-        return $this->appPath;
     }
 
     /**
