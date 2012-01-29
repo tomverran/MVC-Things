@@ -1,5 +1,6 @@
 <?php
 namespace Application\Controller;
+use Application\Library\View;
 use Application\Model\Data;
 use Framework\Loader;
 
@@ -28,12 +29,12 @@ class Test {
     public function __construct() {
 
         //initialisation
+        $this->view = new View();
         $this->loader = Loader::getInstance();
         $this->model = new Data();
-        ob_start();
 
         //header viewscript.
-        $this->loader->loadScript('View/Header.phtml');
+        $this->view->addScript('View/Header.phtml');
     }
 
     /**
@@ -41,9 +42,8 @@ class Test {
      * is automatically invoked.
      */
     public function hello() {
-        $data = $this->model->getData();
-        $this->loader->loadScript('View/Test.phtml',$data,'htmlentities');
-        $form = new \Zend_Form();
+        $this->view['message'] = array_pop($this->model->getData());
+        $this->view->addScript('View/Test.phtml');
     }
 
     /**
@@ -51,11 +51,9 @@ class Test {
      * outputting a footer if the method ran.
      */
     public function __destruct() {
-        $this->loader->loadScript('View/Footer.phtml');
+        $this->view->addScript('View/Footer.phtml');
         if (isset($GLOBALS['ran'])) { //hack? don't show headers if 404
-            echo ob_get_clean();
-        } else {
-            ob_end_clean();
+            $this->view->render();
         }
     }
 }
