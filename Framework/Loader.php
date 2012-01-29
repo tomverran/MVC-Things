@@ -55,7 +55,7 @@ class Loader extends Singleton
      * @param string $path the absolute path.
      */
     private function setBasePath($path) {
-        if (!is_dir($path)) throw new Exception('Bad Path');
+        if (!is_dir($path)) throw new \Exception('Bad Path');
         $this->path = $path;
         $this->scanLoaders();
     }
@@ -85,7 +85,7 @@ class Loader extends Singleton
     public function loadScript($script, $args=array(), $function=null) {
 
         //handle filtering the given variables with a callback
-        if ($function) {
+        if (is_callable($function)) {
             foreach ($args as $k=>$v) {
                 $args[$k] = call_user_func($function,$v);
             }

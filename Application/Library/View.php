@@ -48,7 +48,7 @@ class View implements \ArrayAccess {
 
     /**
      * Add a script to the queue
-     * @param $script the script to add
+     * @param string $script the script to add
      * @param bool $prepend whether to prepend to the front
      */
     public function addScript($script, $prepend=false) {
@@ -60,13 +60,28 @@ class View implements \ArrayAccess {
     }
 
     /**
+     * Escape a variable.
+     * @param $var the var to escape.
+     */
+    public function escape($var) {
+        if (is_array($var)) {
+            return array_map('htmlentities',$var);
+        } else if (!is_object($var)) {
+           return htmlentities($var);
+        } else {
+            return $var;
+        }
+    }
+
+    /**
      * Render all the scripts queued in the view.
      * Uses Framework\Loader to handle including them.
      */
-    public function render() {
+    public function render($escape = false) {
+        $function = $escape ? array($this,'escape') : null;
         $loader = \Framework\Loader::getInstance();
         foreach ($this->scripts as $script) {
-            $loader->loadScript($script,$this->vars);
+            $loader->loadScript($script,$this->vars,$function);
         }
     }
 }

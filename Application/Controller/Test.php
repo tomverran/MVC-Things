@@ -52,8 +52,6 @@ class Test {
      */
     public function __destruct() {
         $this->view->addScript('View/Footer.phtml');
-        if (isset($GLOBALS['ran'])) { //hack? don't show headers if 404
-            $this->view->render();
-        }
+        $this->view->render(true);
     }
 }
