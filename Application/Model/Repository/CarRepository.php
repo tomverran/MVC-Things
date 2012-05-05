@@ -34,6 +34,6 @@ class CarRepository extends \Application\Model\Repository\Repository {
      */
     public function get($id)
     {
-        return $this->objectify(self::$db->fetchRow('SELECT * FROM cars WHERE id='.$id));
+        return $this->objectify($this->select()->where('id=?',$id)->query()->fetch());
     }
 }
