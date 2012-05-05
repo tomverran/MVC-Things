@@ -6,7 +6,15 @@ body {
     color: #333;
 }
 
+body > h1 {
+    margin-left: 10%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 h1, h2 {
+    font-family: "Impact", sans-serif;
+    font-weight: normal;
     padding:  0;
     margin: 0;
 }
@@ -19,7 +27,7 @@ div {
     margin-right: auto;
     border: 1px solid #dcdcdc;
     box-shadow: #dcdcdc 1px 1px 8px;
-    margin-top: 50px;
+    margin-top: 20px;
     padding: 10px;
 }
 

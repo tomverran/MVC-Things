@@ -10,43 +10,35 @@ include('Singleton.php');
 class Loader extends Singleton
 {
     private $path = '.';
-    const APP_DIR = 'Application';
+    const APP_DIR = 'Application/';
+    const LIB_DIR = 'Application/Library/';
 
     /**
      * Construct our loader.
      */
     protected function __construct() {
         spl_autoload_extensions('.php');
-        spl_autoload_register(); //handle default autoloading of namespaces
+        spl_autoload_register(); //handle default loading of namespaces
+        set_include_path(get_include_path().PATH_SEPARATOR.self::LIB_DIR);
+        spl_autoload_register(array($this,'zend'));
         $this->setBasePath(dirname(__FILE__).'/../');
     }
 
     /**
-     * Handle loading in user-defined classes which
-     * contain a load() function to autoload third party libs.
+     * Auto load zend style
+     * @param $class
+     * @return bool
      */
-    private function scanLoaders() {
-
-        if (!isset($this->path)) throw new \Exception('No Path Defined');
-        $loaderDirectory = $this->path.Loader::APP_DIR.'/Loader/';
-
-        if (is_dir($loaderDirectory)) {
-            foreach (scandir($loaderDirectory) as $file) {
-                if (is_file($loaderDirectory.$file)) {
-
-                    //convert the path to our loader class into a nice namespace
-                    $namespaced = '\\'.Loader::APP_DIR.'\Loader\\'.substr($file,0,-4);
-
-                    //if it exists add to stach
-                    if (class_exists($namespaced)) {
-                        $object = new $namespaced();
-                        if (method_exists($object,'load')) {
-                            spl_autoload_register(array($object,'load'));
-                        }
-                    }
-                }
+    private function zend($class)
+    {
+        if (strpos($class,'_')!==false) {
+            $name = self::LIB_DIR.str_replace('_','/',$class).'.php';
+            if (file_exists($name)) {
+                include $name;
+                return (class_exists($class));
             }
         }
+        return false;
     }
 
     /**
@@ -57,7 +49,6 @@ class Loader extends Singleton
     private function setBasePath($path) {
         if (!is_dir($path)) throw new \Exception('Bad Path');
         $this->path = $path;
-        $this->scanLoaders();
     }
 
     /**
@@ -66,14 +57,6 @@ class Loader extends Singleton
      */
     public function getBasePath() {
         return $this->path;
-    }
-
-    /**
-     * Get the absolute application path.
-     * @return string
-     */
-    public function getAppPath() {
-        return $this->path.Loader::APP_DIR.'/';
     }
 
     /**
@@ -92,6 +75,6 @@ class Loader extends Singleton
         }
 
         extract($args);
-        include $this->path.Loader::APP_DIR.'/'.$script;
+        include $this->path.Loader::APP_DIR.$script;
     }
 }

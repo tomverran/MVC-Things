@@ -1,9 +1,9 @@
 <?php
 namespace Application\Controller;
+use Application\Model\Repository\CarRepository;
 use Application\Library\View;
-use Application\Model\Data;
 use Framework\Loader;
-
+use Framework\Router;
 /**
  * An example controller. We don't extend any base classes here
  * for simplicity, but you'll probably want to create a base class
@@ -17,29 +17,36 @@ class Test {
     private $view;
 
     /**
-     * @var \Application\Model\Data
+     * @var \Application\Model\Repository\CarRepository
      */
-    private $model;
+    private $cars;
 
     /**
      * Construct this test controller,
      * grabbing framework singletons and
      * outputting a header view.
      */
-    public function __construct() {
-
+    public function __construct()
+    {
         //initialisation
         $this->view = new View();
-        $this->model = new Data();
+        $this->cars = new CarRepository();
         $this->view->addScript('View/Header.phtml');
         $this->view['url'] = 'http://localhost/YetAnother/';
     }
 
-    public function index() {
-        $this->view['method'] = \Framework\Router::getInstance()->getMethod();
-        $this->view['controller'] = \Framework\Router::getInstance()->getController();
-        $this->view['params'] = implode(',',\Framework\Router::getInstance()->getParams());
+    public function index()
+    {
+        $this->view['method'] = Router::getInstance()->getMethod();
+        $this->view['controller'] = Router::getInstance()->getController();
+        $this->view['params'] = implode(',',Router::getInstance()->getParams());
         $this->view->addScript('View/Test.phtml');
+    }
+
+    public function cars()
+    {
+        $car = $this->cars->get(1);
+        var_dump($car->getEngine());
     }
 
     /**
@@ -48,6 +55,6 @@ class Test {
      */
     public function __destruct() {
         $this->view->addScript('View/Footer.phtml');
-        $this->view->render(true);
+        $this->view->render(false);
     }
 }

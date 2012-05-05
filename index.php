@@ -5,7 +5,7 @@
 
     //handle URI routing
     $router = Framework\Router::getInstance();
-    $uriController = Framework\Loader::APP_DIR.'\Controller\\'.$router->getController();
+    $uriController = str_replace('/','\\',Framework\Loader::APP_DIR).'Controller\\'.$router->getController();
 
     //create controller
     if (class_exists($uriController)) {

@@ -1,5 +1,5 @@
 <?php
-namespace Application\Model\Mapper;
+namespace Application\Model\Repository;
 /**
  * Created by JetBrains PhpStorm.
  * User: Tom
@@ -7,12 +7,30 @@ namespace Application\Model\Mapper;
  * Time: 17:56
  * To change this template use File | Settings | File Templates.
  */
-abstract class Repository extends \Framework\Singleton {
+abstract class Repository
+{
+
+    /**
+     * @var Zend_Db
+     */
+    protected static $db;
 
     /**
      * @var \ReflectionClass
      */
     private $class;
+
+    /**
+     * Construct a new repository.
+     * This class is abstract but subclasses should call this
+     * since it checks to see if the Db is initialised.
+     */
+    public function __construct()
+    {
+        if (!isset(self::$db)) {
+            self::$db = \Zend_Db::factory('mysqli',array('host'=>'localhost','dbname'=>'car','password'=>'','username'=>'root'));
+        }
+    }
 
     /**
      * Set the class to return
@@ -23,28 +41,65 @@ abstract class Repository extends \Framework\Singleton {
     }
 
     /**
-     * Convert a result array into domain objects
-     * @param array $result The result array to convert
-     * @param string|null $class the object type to use
+     * @param $result
+     * @param null $class
      * @return mixed
      */
-    public function objectify($result, $class=null) {
+    public function objectify($result, $class=null)
+    {
+        if ($class) {
+            $class = new \ReflectionClass($class);
+        } else {
+            $class = $this->class;
+        }
 
-        //grab an instance of our class
-        if (!$class) $class = $this->class;
         $object = $class->newInstance();
-
         foreach ($result as $key=>$value) {
-            $setterMethod = 'set'.ucfirst($key);
+            $key = self::dbFieldToProperty($key);
+            $setterMethod = self::propertyToMethod($key);
             if ($this->class->hasMethod($setterMethod)) {
-
-                $object->$setterMethod($value);
-
-            } else if ($this->class->hasProperty($key)) {
-                $object->$key = $value;
+                $this->class->getMethod($setterMethod)->invoke($object,$value);
+            } else if ($this->class->hasProperty($key) && $this->class->getProperty($key)->isPublic()) {
+                $this->class->getProperty($key)->setValue($object,$value);
             }
         }
         return $object;
+    }
+
+    /**
+     * Convert a DB field to a property name.
+     * @static
+     * @param $key
+     * @return mixed
+     */
+    protected static function dbFieldToProperty($key)
+    {
+        return preg_replace_callback('/_([a-z])/',function($matches) {
+            return strtoupper($matches[1]);
+        }, $key);
+    }
+
+    /**
+     * Convert a property name to a DB field.
+     * @static
+     * @param $key
+     * @return mixed
+     */
+    protected static function propertyToDbField($key)
+    {
+        return preg_replace_callback('/[A-Z]/',function($matches) {
+            return '_'.strtolower($matches[0]);
+        }, $key);
+    }
+
+    /**
+     * @static
+     * @param $key
+     * @return string
+     */
+    protected static function propertyToMethod($key)
+    {
+        return 'set'.ucfirst($key);
     }
 
     /**
