@@ -21,6 +21,11 @@ abstract class Repository
     private $class;
 
     /**
+     * @var string A table name for use with select()
+     */
+    private $table;
+
+    /**
      * Construct a new repository.
      * This class is abstract but subclasses should call this
      * since it checks to see if the Db is initialised.
@@ -28,16 +33,42 @@ abstract class Repository
     public function __construct()
     {
         if (!isset(self::$db)) {
-            self::$db = \Zend_Db::factory('mysqli',array('host'=>'localhost','dbname'=>'car','password'=>'','username'=>'root'));
+            self::$db = \Zend_Db::factory('mysqli',array('host'=>'localhost',
+                                                         'dbname'=>'car',
+                                                         'password'=>'',
+                                                         'username'=>'root'));
         }
     }
 
     /**
-     * Set the class to return
-     * @param string $class
+     * Set the table to use for selects.
+     * @param string $table The table name
+     * @return Repository
+     */
+    protected function setTable($table)
+    {
+        $this->table = $table;
+        return $this;
+    }
+
+    /**
+     * Get a select object
+     * @param array $cols
+     * @return \Zend_Db_Select
+     */
+    protected function select(array $cols = array('*'))
+    {
+        return self::$db->select()->from($this->table,$cols);
+    }
+
+    /**
+     * Set the class to use when objectifying
+     * @param string $class The full class name
+     * @return Repository
      */
     public function setReturnClass($class) {
         $this->class = new \ReflectionClass($class);
+        return $this;
     }
 
     /**
@@ -47,12 +78,23 @@ abstract class Repository
      */
     public function objectify($result, $class=null)
     {
-        if ($class) {
+        //get a ReflectionClass, somehow
+        if ($class && is_string($class)) {
             $class = new \ReflectionClass($class);
-        } else {
+        } else if (!$class || !$class instanceof \ReflectionClass) {
             $class = $this->class;
         }
 
+        //is this multiple objects?
+        if (is_array(reset($result))) {
+            $final = array();
+            foreach ($result as $rows) {
+                $final[] = $this->objectify($rows,$class);
+            }
+            return $final;
+        }
+
+        //handle objectifying the array
         $object = $class->newInstance();
         foreach ($result as $key=>$value) {
             $key = self::dbFieldToProperty($key);

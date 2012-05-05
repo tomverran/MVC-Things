@@ -35,40 +35,67 @@ class Car {
      */
     private $engines;
 
+    /**
+     * Construct our Car.
+     */
     public function __construct()
     {
         $this->engines = new EngineRepository();
     }
 
+    /**
+     * Set the ID field
+     * @param int $id
+     */
     public function setId($id)
     {
         $this->id = $id;
     }
 
+    /**
+     * Set the car's name
+     * @param string $name
+     */
     public function setName($name)
     {
         $this->name = $name;
     }
 
+    /**
+     * Set the engine ID
+     * @param int $id
+     */
     public function setEngineId($id)
     {
         $this->engineId = $id;
     }
 
+    /**
+     * Set the chassis ID
+     * @param int $id
+     */
     public function setChassisId($id)
     {
         $this->chassis_id = $id;
     }
 
-    public function getName()
+    /**
+     * Get the car's name, optionally with engine suffix.
+     * @param bool $suffix Whether to include the engine suffix
+     * @return string The car name
+     */
+    public function getName($suffix=true)
     {
-        $engine = $this->engines->get($this->engineId);
-        return $this->name.' '.$engine->getSuffix();
+        $post = $suffix ? $engine = $this->engines->get($this->engineId)->getSuffix() : '';
+        return $this->name.' '.$post;
     }
 
+    /**
+     * Get this car's engine.
+     * @return Engine
+     */
     public function getEngine()
     {
         return $this->engines->get($this->engineId);
     }
-
 }

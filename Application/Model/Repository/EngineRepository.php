@@ -17,7 +17,7 @@ class EngineRepository extends Repository {
     public function get($id)
     {
         $this->setReturnClass('Application\Model\Entity\Engine');
-        return $this->objectify(self::$db->fetchRow('SELECT * from engines WHERE id='.$id));
+        return $this->objectify($this->select()->where('id=?',$id)->query()->fetch());
     }
 
 }

@@ -35,6 +35,9 @@ class Test {
         $this->view['url'] = 'http://localhost/YetAnother/';
     }
 
+    /**
+     * Index methods are called when no other is supplied.
+     */
     public function index()
     {
         $this->view['method'] = Router::getInstance()->getMethod();
@@ -43,6 +46,9 @@ class Test {
         $this->view->addScript('View/Test.phtml');
     }
 
+    /**
+     * Don't mind me, just playing about with MVC things.
+     */
     public function cars()
     {
         $car = $this->cars->get(1);

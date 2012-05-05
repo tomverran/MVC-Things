@@ -1,6 +1,5 @@
 <?php
 namespace Application\Model\Repository;
-use \Application\Library\Database;
 /**
  * Created by JetBrains PhpStorm.
  * User: Tom
@@ -26,7 +25,7 @@ class CarRepository extends \Application\Model\Repository\Repository {
      */
     public function getCars()
     {
-        return $this->objectifyMany(self::$db->fetchAll('SELECT * FROM cars'));
+        return $this->objectifyMany($this->select()->query()->fetchAll());
     }
 
     /**

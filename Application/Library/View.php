@@ -6,7 +6,8 @@ namespace Application\Library;
  * the application's view to be built up
  * of several scripts sharing variables.
  */
-class View implements \ArrayAccess {
+class View implements \ArrayAccess
+{
 
     private $vars = array();
     private $scripts;
@@ -16,7 +17,8 @@ class View implements \ArrayAccess {
      * @param mixed $offset the offset to get
      * @return mixed its value.
      */
-    public function offsetGet($offset) {
+    public function offsetGet($offset)
+    {
         return $this->vars[$offset];
     }
 
@@ -25,7 +27,8 @@ class View implements \ArrayAccess {
      * @param mixed $offset the offset to set
      * @param mixed $val its value to set it to
      */
-    public function offsetSet($offset, $val) {
+    public function offsetSet($offset, $val)
+    {
         $this->vars[$offset] = $val;
     }
 
@@ -33,7 +36,8 @@ class View implements \ArrayAccess {
      * ArrayAccess unset an offset
      * @param mixed $offset
      */
-    public function offsetUnset($offset) {
+    public function offsetUnset($offset)
+    {
         unset($this->vars[$offset]);
     }
 
@@ -42,7 +46,8 @@ class View implements \ArrayAccess {
      * @param mixed $offset The offset to check
      * @return bool whether it exists in the array
      */
-    public function offsetExists($offset) {
+    public function offsetExists($offset)
+    {
         return isset($this->vars[$offset]);
     }
 
@@ -51,7 +56,8 @@ class View implements \ArrayAccess {
      * @param string $script the script to add
      * @param bool $prepend whether to prepend to the front
      */
-    public function addScript($script, $prepend=false) {
+    public function addScript($script, $prepend=false)
+    {
         if (!$prepend) {
             $this->scripts[] = $script;
         } else {
@@ -60,10 +66,12 @@ class View implements \ArrayAccess {
     }
 
     /**
-     * Escape a variable.
-     * @param $var the var to escape.
+     * Escape
+     * @param $var
+     * @return array|string
      */
-    public function escape($var) {
+    public function escape($var)
+    {
         if (is_array($var)) {
             return array_map('htmlentities',$var);
         } else if (!is_object($var)) {
@@ -74,10 +82,11 @@ class View implements \ArrayAccess {
     }
 
     /**
-     * Render all the scripts queued in the view.
-     * Uses Framework\Loader to handle including them.
+     * Render.
+     * @param bool $escape
      */
-    public function render($escape = false) {
+    public function render($escape = false)
+    {
         $function = $escape ? array($this,'escape') : null;
         $loader = \Framework\Loader::getInstance();
         foreach ($this->scripts as $script) {
