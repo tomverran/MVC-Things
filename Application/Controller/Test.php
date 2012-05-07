@@ -1,5 +1,6 @@
 <?php
 namespace Application\Controller;
+use Application\Model\Repository\EngineRepository;
 use Application\Model\Repository\CarRepository;
 use Application\Library\View;
 use Framework\Loader;
@@ -30,7 +31,7 @@ class Test {
     {
         //initialisation
         $this->view = new View();
-        $this->cars = new CarRepository();
+        $this->cars = new CarRepository(new EngineRepository());
         $this->view->addScript('View/Header.phtml');
         $this->view['url'] = 'http://localhost/YetAnother/';
     }

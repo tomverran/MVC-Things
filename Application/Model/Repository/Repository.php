@@ -41,6 +41,112 @@ abstract class Repository
     }
 
     /**
+     * Save a domain object
+     * @param $object
+     */
+    public function save($object)
+    {
+        if (!$object instanceof $this->class) {
+            throw new \LogicException('Bad Object Type');
+        }
+
+        $id = null;
+        $toSave = array();
+        $ro = new \ReflectionObject($object);
+        foreach ($ro->getProperties() as $property) {
+            $property->setAccessible(true);
+            if ($property->getName() != 'id') {
+                $toSave[$property->getName()] = $property->getValue();
+            } else {
+                $id = $property->getValue();
+            }
+        }
+
+        if (isset($id)) {
+            self::$db->update($this->table,$toSave,'id='.self::$db->quote($id));
+        } else {
+            self::$db->insert($this->table,$toSave);
+        }
+    }
+
+    /**
+     * Delete a domain object
+     * @param int $id
+     * @return int
+     */
+    public function delete($id)
+    {
+        return self::$db->delete($this->table,'id='.self::$db->quote($id));
+    }
+
+    /**
+     * Get a single domain object
+     * @param int $id
+     * @return mixed
+     */
+    public function get($id)
+    {
+        return $this->objectify($this->select()->where('id=?',$id)->query()->fetch());
+    }
+
+    /**
+     * Get Domain Objects by IDs.
+     * @param array $ids
+     * @return array|mixed
+     */
+    public function getByIds(array $ids)
+    {
+        if (!count($ids)) {
+            return array();
+        } else {
+            foreach ($ids as &$id) {
+                $id = self::$db->quote($id);
+            }
+        }
+
+        return $this->objectify($this->select()
+                    ->where('id IN ('.implode(',',$ids).')')
+                    ->query()->fetchAll());
+    }
+
+    /**
+     * Get Domain Objects by filters
+     * @param array $filters
+     * @return mixed
+     */
+    public function getBy(array $filters)
+    {
+        $select = $this->select();
+        foreach ($filters as $col=>$val) {
+            $select->where(self::$db->quoteIdentifier($col).'=?',$val);
+        }
+        return $this->objectify($this->select()->query()->fetchAll());
+    }
+
+    /**
+     * Callback fired after objectificaton of objects
+     * Allowing repositories to modify Domain Objects to fulfill relationships
+     * without having to override get, getBy, getByIDs etc.
+     * @param $object
+     */
+    protected function parseObject($object)
+    {
+        return $object;
+    }
+
+    /**
+     * A similar callback function to the above
+     * but called when multiple objects are pulled back
+     * to allow for more efficient joins etc.
+     * @param array $objects
+     * @return array
+     */
+    protected function parseMany(array $objects)
+    {
+        return $objects;
+    }
+
+    /**
      * Set the table to use for selects.
      * @param string $table The table name
      * @return Repository
@@ -74,9 +180,10 @@ abstract class Repository
     /**
      * @param $result
      * @param null $class
-     * @return mixed
+     * @param bool $parse
+     * @return array
      */
-    public function objectify($result, $class=null)
+    protected function objectify($result, $class=null, $parse=true)
     {
         //get a ReflectionClass, somehow
         if ($class && is_string($class)) {
@@ -88,10 +195,10 @@ abstract class Repository
         //is this multiple objects?
         if (is_array(reset($result))) {
             $final = array();
-            foreach ($result as $rows) {
-                $final[] = $this->objectify($rows,$class);
+            foreach ($result as $row) {
+                $final[$row['id']] = $this->objectify($row,$class,false);
             }
-            return $final;
+            return $this->parseMany($final);
         }
 
         //handle objectifying the array
@@ -105,7 +212,12 @@ abstract class Repository
                 $this->class->getProperty($key)->setValue($object,$value);
             }
         }
-        return $object;
+
+        if ($parse) {
+            return $this->parseObject($object);
+        } else {
+            return $object;
+        }
     }
 
     /**
@@ -142,18 +254,5 @@ abstract class Repository
     protected static function propertyToMethod($key)
     {
         return 'set'.ucfirst($key);
-    }
-
-    /**
-     * Convert many things to an object
-     * @param $result
-     * @return array
-     */
-    public function objectifyMany($result) {
-        $ret = array();
-        foreach ($result as $key=>$value) {
-            $ret[$key] = $this->objectify($value);
-        }
-        return $ret;
     }
 }

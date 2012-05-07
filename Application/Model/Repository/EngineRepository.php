@@ -2,22 +2,18 @@
 namespace Application\Model\Repository;
 
 /**
- * Created by JetBrains PhpStorm.
- * User: Tom
- * Date: 05/05/12
- * Time: 16:51
- * To change this template use File | Settings | File Templates.
+ * An Engine Repository.
  */
-class EngineRepository extends Repository {
+class EngineRepository extends Repository
+{
 
     /**
-     * @param $id
-     * @return \Application\Model\Entity\Engine
+     * Construct a basic engine repo.
+     * Set our return class to Engine.
      */
-    public function get($id)
+    public function __construct()
     {
         $this->setReturnClass('Application\Model\Entity\Engine');
-        return $this->objectify($this->select()->where('id=?',$id)->query()->fetch());
+        $this->setTable('engines');
     }
-
 }

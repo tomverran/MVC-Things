@@ -18,7 +18,7 @@ class Car {
     /**
      * @var int
      */
-    private $chassis_id;
+    private $chassisId;
 
     /**
      * @var int
@@ -31,17 +31,9 @@ class Car {
     private $name;
 
     /**
-     * @var EngineRepository
+     * @var Engine
      */
-    private $engines;
-
-    /**
-     * Construct our Car.
-     */
-    public function __construct()
-    {
-        $this->engines = new EngineRepository();
-    }
+    private $engine;
 
     /**
      * Set the ID field
@@ -70,13 +62,18 @@ class Car {
         $this->engineId = $id;
     }
 
+    public function getEngineId()
+    {
+        return $this->engineId;
+    }
+
     /**
      * Set the chassis ID
      * @param int $id
      */
     public function setChassisId($id)
     {
-        $this->chassis_id = $id;
+        $this->chassisId = $id;
     }
 
     /**
@@ -86,7 +83,7 @@ class Car {
      */
     public function getName($suffix=true)
     {
-        $post = $suffix ? $engine = $this->engines->get($this->engineId)->getSuffix() : '';
+        $post = $suffix ? $this->engine->getSuffix() : '';
         return $this->name.' '.$post;
     }
 
@@ -96,6 +93,15 @@ class Car {
      */
     public function getEngine()
     {
-        return $this->engines->get($this->engineId);
+        return $this->engine;
+    }
+
+    /**
+     * @param Engine $engine
+     */
+    public function setEngine(Engine $engine)
+    {
+        $this->engine = $engine;
+        $this->engineId = $engine->getId();
     }
 }

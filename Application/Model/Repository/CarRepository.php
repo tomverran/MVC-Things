@@ -7,33 +7,52 @@ namespace Application\Model\Repository;
  * Time: 15:59
  * To change this template use File | Settings | File Templates.
  */
-class CarRepository extends \Application\Model\Repository\Repository {
-
+class CarRepository extends \Application\Model\Repository\Repository
+{
 
     /**
-     * Construct this car repo
+     * Engine Repository to fulfill relationships
+     * @var \Application\Model\Repository\Repository
      */
-    public function __construct()
+    private $engineRepository;
+
+    /**
+     * Construct this CarRepository
+     * @param Repository $engineRepository DI for engines.
+     */
+    public function __construct(Repository $engineRepository)
     {
         parent::__construct();
+        $this->engineRepository = $engineRepository;
         $this->setReturnClass('\Application\Model\Entity\Car');
+        $this->setTable('cars');
     }
 
     /**
-     * Get many cars.
-     * @return array
+     * Parse a Car.
+     * @param Application\Model\Entity\Car $object
      */
-    public function getCars()
+    public function parseObject($object)
     {
-        return $this->objectifyMany($this->select()->query()->fetchAll());
+        $object->setEngine($this->engineRepository->get($object->getEngineId()));
+        return $object;
     }
 
     /**
-     * @param $id
-     * @return \Application\Model\Entity\Car
+     * parse many cars
+     * @param array $objects
      */
-    public function get($id)
+    public function parseMany(array $objects)
     {
-        return $this->objectify($this->select()->where('id=?',$id)->query()->fetch());
+        $ids = array_map(function($object) {
+            return $object->getId();
+        },$objects);
+
+        $engines = $this->engineRepository->getByIds($ids);
+        foreach ($objects as $car) {
+            $car->setEngine($engines[$car->getEngineId()]);
+        }
+        return $objects;
     }
+
 }

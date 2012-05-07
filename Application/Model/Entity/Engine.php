@@ -31,6 +31,11 @@ class Engine
         $this->id = $id;
     }
 
+    public function getId()
+    {
+        return $this->id;
+    }
+
     /**
      * Set the name of this Engine
      * @param $name
