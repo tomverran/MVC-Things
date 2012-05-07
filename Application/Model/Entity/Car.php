@@ -1,12 +1,11 @@
 <?php
 namespace Application\Model\Entity;
 use Application\Model\Repository\EngineRepository;
+
 /**
- * Created by JetBrains PhpStorm.
- * User: Tom
- * Date: 05/05/12
- * Time: 15:54
- * To change this template use File | Settings | File Templates.
+ * A Car.
+ * @author Tom
+ * @since dunno
  */
 class Car {
 
@@ -36,44 +35,26 @@ class Car {
     private $engine;
 
     /**
-     * Set the ID field
-     * @param int $id
+     * Construct our Car.
+     * @param array $row
      */
-    public function setId($id)
+    public function __construct($row=null)
     {
-        $this->id = $id;
+        if (is_array($row)) {
+            $this->id = $row['id'];
+            $this->engineId = $row['engine_id'];
+            $this->chassisId = $row['chassis_id'];
+            $this->name = $row['name'];
+        }
     }
 
     /**
-     * Set the car's name
-     * @param string $name
+     * Get Engine ID
+     * @return int
      */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * Set the engine ID
-     * @param int $id
-     */
-    public function setEngineId($id)
-    {
-        $this->engineId = $id;
-    }
-
     public function getEngineId()
     {
         return $this->engineId;
-    }
-
-    /**
-     * Set the chassis ID
-     * @param int $id
-     */
-    public function setChassisId($id)
-    {
-        $this->chassisId = $id;
     }
 
     /**
@@ -88,20 +69,20 @@ class Car {
     }
 
     /**
-     * Get this car's engine.
-     * @return Engine
-     */
-    public function getEngine()
-    {
-        return $this->engine;
-    }
-
-    /**
      * @param Engine $engine
      */
     public function setEngine(Engine $engine)
     {
         $this->engine = $engine;
         $this->engineId = $engine->getId();
+    }
+
+    /**
+     * Get this car's engine.
+     * @return Engine
+     */
+    public function getEngine()
+    {
+        return $this->engine;
     }
 }

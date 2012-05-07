@@ -178,12 +178,12 @@ abstract class Repository
     }
 
     /**
+     * Objectify
      * @param $result
      * @param null $class
-     * @param bool $parse
      * @return array
      */
-    protected function objectify($result, $class=null, $parse=true)
+    protected function objectify($result, $class=null)
     {
         //get a ReflectionClass, somehow
         if ($class && is_string($class)) {
@@ -196,28 +196,14 @@ abstract class Repository
         if (is_array(reset($result))) {
             $final = array();
             foreach ($result as $row) {
-                $final[$row['id']] = $this->objectify($row,$class,false);
+                $final[$row['id']] = $class->newInstance($row);
             }
             return $this->parseMany($final);
         }
 
-        //handle objectifying the array
-        $object = $class->newInstance();
-        foreach ($result as $key=>$value) {
-            $key = self::dbFieldToProperty($key);
-            $setterMethod = self::propertyToMethod($key);
-            if ($this->class->hasMethod($setterMethod)) {
-                $this->class->getMethod($setterMethod)->invoke($object,$value);
-            } else if ($this->class->hasProperty($key) && $this->class->getProperty($key)->isPublic()) {
-                $this->class->getProperty($key)->setValue($object,$value);
-            }
-        }
-
-        if ($parse) {
-            return $this->parseObject($object);
-        } else {
-            return $object;
-        }
+        //handle objectifying a single object if not
+        $object = $class->newInstance($result);
+        return $this->parseObject($object);
     }
 
     /**

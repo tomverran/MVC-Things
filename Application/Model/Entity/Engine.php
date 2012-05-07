@@ -22,36 +22,23 @@ class Engine
      */
     private $suffix;
 
-    /**
-     * Set the ID of this Engine
-     * @param int $id
-     */
-    public function setId($id)
+    public function __construct($row=null)
     {
-        $this->id = $id;
+        if (is_array($row)) {
+            $this->id = $row['id'];
+            $this->name = $row['name'];
+            $this->suffix = $row['suffix'];
+        }
+
     }
 
+    /**
+     * Get the ID.
+     * @return int
+     */
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set the name of this Engine
-     * @param $name
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * Set the suffix of this engine
-     * @param $suffix
-     */
-    public function setSuffix($suffix)
-    {
-        $this->suffix = $suffix;
     }
 
     /**
