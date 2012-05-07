@@ -1,15 +1,13 @@
 <?php
 namespace Application\Model\Repository;
+use Application\Model\Entity\Car;
 /**
- * Created by JetBrains PhpStorm.
- * User: Tom
- * Date: 05/05/12
- * Time: 15:59
- * To change this template use File | Settings | File Templates.
+ * A Car Repository
+ * @author Tom
+ * @since 05/05/12
  */
 class CarRepository extends \Application\Model\Repository\Repository
 {
-
     /**
      * Engine Repository to fulfill relationships
      * @var \Application\Model\Repository\Repository
@@ -24,35 +22,57 @@ class CarRepository extends \Application\Model\Repository\Repository
     {
         parent::__construct();
         $this->engineRepository = $engineRepository;
-        $this->setReturnClass('\Application\Model\Entity\Car');
         $this->setTable('cars');
     }
 
     /**
-     * Parse a Car.
-     * @param Application\Model\Entity\Car $object
+     * Map a Car object to a row for saving.
+     * @param \Application\Model\Entity\Car $car
+     * @return array
      */
-    public function parseObject($object)
+    protected function objectToRow($car)
     {
-        $object->setEngine($this->engineRepository->get($object->getEngineId()));
-        return $object;
+        return array(
+            'id'=>$car->getId(),
+            'name'=>$car->getName(false),
+            'chassis_id'=>$car->getChassisId(),
+            'engine_id'=>$car->getEngineId()
+        );
+    }
+
+    /**
+     * Parse
+     * @param $row
+     * @return \Application\Model\Entity\Car
+     */
+    protected function rowToObject(array $row)
+    {
+        $car = new Car($row['id'], $row['engine_id'], $row['chassis_id'], $row['name']);
+        $car->setEngine($this->engineRepository->get($car->getEngineId()));
+        return $car;
     }
 
     /**
      * parse many cars
-     * @param array $objects
+     * @param array $rows
+     * @return array
      */
-    public function parseMany(array $objects)
+    protected function rowsToObjects(array $rows)
     {
-        $ids = array_map(function($object) {
-            return $object->getId();
-        },$objects);
+        $ids = array_map(function($row) {
+            return $row['id'];
+        },$rows);
 
+        //fetch in engines required by our cars.
         $engines = $this->engineRepository->getByIds($ids);
-        foreach ($objects as $car) {
-            $car->setEngine($engines[$car->getEngineId()]);
-        }
-        return $objects;
-    }
+        $final = array();
 
+        //re-create our cars.
+        foreach ($rows as $row) {
+            $car = new Car($row['id'], $row['engine_id'], $row['chassis_id'], $row['name']);
+            $car->setEngine($engines[$row['engine_id']]);
+            $final[$row['id']] = $car;
+        }
+        return $final;
+    }
 }

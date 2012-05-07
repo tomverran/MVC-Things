@@ -15,21 +15,12 @@ class Engine
     /**
      * @var string
      */
-    private $name;
-
-    /**
-     * @var string
-     */
     private $suffix;
 
-    public function __construct($row=null)
+    public function __construct($id, $suffix)
     {
-        if (is_array($row)) {
-            $this->id = $row['id'];
-            $this->name = $row['name'];
-            $this->suffix = $row['suffix'];
-        }
-
+        $this->id = $id;
+        $this->suffix = $suffix;
     }
 
     /**

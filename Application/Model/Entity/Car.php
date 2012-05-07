@@ -35,17 +35,26 @@ class Car {
     private $engine;
 
     /**
-     * Construct our Car.
-     * @param array $row
+     * Construct our car
+     * @param $id
+     * @param int $engine
+     * @param int $chassis
      */
-    public function __construct($row=null)
+    public function __construct($id, $engine, $chassis, $name)
     {
-        if (is_array($row)) {
-            $this->id = $row['id'];
-            $this->engineId = $row['engine_id'];
-            $this->chassisId = $row['chassis_id'];
-            $this->name = $row['name'];
-        }
+        $this->id = $id;
+        $this->engineId = $engine;
+        $this->chassisId = $chassis;
+        $this->name = $name;
+    }
+
+    /**
+     * Get the UID of this car
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 
     /**
@@ -58,6 +67,15 @@ class Car {
     }
 
     /**
+     * Get Chassis ID
+     * @return int
+     */
+    public function getChassisId()
+    {
+        return $this->chassisId;
+    }
+
+    /**
      * Get the car's name, optionally with engine suffix.
      * @param bool $suffix Whether to include the engine suffix
      * @return string The car name
@@ -66,6 +84,15 @@ class Car {
     {
         $post = $suffix ? $this->engine->getSuffix() : '';
         return $this->name.' '.$post;
+    }
+
+    /**
+     * Set our name
+     * @param $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 
     /**
