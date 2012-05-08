@@ -2,6 +2,7 @@
 namespace Application\Controller;
 use Application\Model\Repository\EngineRepository;
 use Application\Model\Repository\CarRepository;
+use Application\Model\Repository\Repository;
 use Application\Library\View;
 use Framework\Loader;
 use Framework\Router;
@@ -32,6 +33,7 @@ class Test {
         //initialisation
         $this->view = new View();
         $this->cars = new CarRepository(new EngineRepository());
+        $this->cars->setMode(Repository::LAZY);
         $this->view->addScript('View/Header.phtml');
         $this->view['url'] = 'http://localhost/YetAnother/';
     }

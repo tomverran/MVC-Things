@@ -1,6 +1,6 @@
 <?php
 namespace Application\Model\Repository;
-
+use Application\Model\Entity\Wrapper;
 /**
  * A repository class that handles accessing and storing objects,
  * using an interface similar to that of an in memory data structure.
@@ -22,18 +22,49 @@ abstract class Repository
     private $table;
 
     /**
+     * @var int
+     */
+    private $mode;
+    const EAGER = 0;
+    const LAZY = 1;
+
+    /**
      * Construct a new repository.
      * This class is abstract but subclasses should call this
      * since it checks to see if the Db is initialised.
      */
     public function __construct()
     {
+        $this->mode = self::EAGER;
         if (!isset(self::$db)) {
             self::$db = \Zend_Db::factory('mysqli',array('host'=>'localhost',
                                                          'dbname'=>'car',
                                                          'password'=>'',
                                                          'username'=>'root'));
         }
+    }
+
+    /**
+     * Set Mode
+     * @param $mode
+     * @throws \LogicException
+     */
+    public function setMode($mode)
+    {
+        if (in_array($mode,array(Repository::EAGER,Repository::LAZY))) {
+            $this->mode = $mode;
+        } else {
+            throw new \LogicException('Bad Mode');
+        }
+    }
+
+    /**
+     * Get mode
+     * @return int
+     */
+    public function getMode()
+    {
+        return $this->mode;
     }
 
     /**
@@ -88,7 +119,11 @@ abstract class Repository
      */
     public function get($id)
     {
-        return $this->rowToObject($this->select()->where('id=?',$id)->query()->fetch());
+        if ($this->mode == Repository::EAGER) {
+            return $this->rowToObject($this->select()->where('id=?',$id)->query()->fetch());
+        } else {
+            return new Wrapper($id, $this);
+        }
     }
 
     /**
@@ -105,10 +140,17 @@ abstract class Repository
                 $id = self::$db->quote($id);
             }
         }
-
-        return $this->rowsToObjects($this->select()
-                    ->where('id IN ('.implode(',',$ids).')')
-                    ->query()->fetchAll());
+        if ($this->mode == Repository::EAGER) {
+            return $this->rowsToObjects($this->select()
+                        ->where('id IN ('.implode(',',$ids).')')
+                        ->query()->fetchAll());
+        } else {
+            $final = array();
+            foreach ($ids as $id) {
+                $final[$id] = new Wrapper($id, $this);
+            }
+            return $final;
+        }
     }
 
     /**

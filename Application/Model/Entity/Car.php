@@ -98,7 +98,7 @@ class Car {
     /**
      * @param Engine $engine
      */
-    public function setEngine(Engine $engine)
+    public function setEngine($engine)
     {
         $this->engine = $engine;
         $this->engineId = $engine->getId();
