@@ -47,8 +47,13 @@ class CarRepository extends \Application\Model\Repository\Repository
      */
     protected function rowToObject(array $row)
     {
+        $h = $this->getPerformanceHint() == Repository::EAGERLAZY ? Repository::LAZY : $this->getPerformanceHint();
+        $old = $this->engineRepository->getPerformanceHint();
+        $this->engineRepository->setPerformanceHint($h);
+
         $car = new Car($row['id'], $row['engine_id'], $row['chassis_id'], $row['name']);
         $car->setEngine($this->engineRepository->get($car->getEngineId()));
+        $this->engineRepository->setPerformanceHint($old);
         return $car;
     }
 

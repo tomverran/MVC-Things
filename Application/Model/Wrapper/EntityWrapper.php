@@ -1,15 +1,15 @@
 <?php
-namespace Application\Model\Entity;
+namespace Application\Model\Wrapper;
 use Application\Model\Repository\Repository;
 /**
  * "Smoke and mirrors, Roy" ~ Maurice Moss
- * Wrapper.php - Allow domain objects
+ * EntityWrapper.php - Allow specific domain objects
  * to be transparently lazy loaded by
  * pretending to be one.
  * @author Tom
  * @since 08/05/12
  */
-class Wrapper
+class EntityWrapper
 {
     /**
      * @var Repository
@@ -37,6 +37,20 @@ class Wrapper
     }
 
     /**
+     * Load our object if it isn't
+     * already loaded.
+     */
+    private function initObject()
+    {
+        if (!isset($this->object)) {
+            $mode = $this->repository->getPerformanceHint();
+            $this->repository->setPerformanceHint(Repository::EAGERLAZY);
+            $this->object = $this->repository->get($this->id);
+            $this->repository->setPerformanceHint($mode);
+        }
+    }
+
+    /**
      * Pass through method calls to our object
      * @param $method
      * @param $args
@@ -44,13 +58,30 @@ class Wrapper
      */
     public function __call($method, $args)
     {
-        if (!isset($this->object)) {
-            $mode = $this->repository->getMode();
-            $this->repository->setMode(Repository::EAGER);
-            $this->object = $this->repository->get($this->id);
-            $this->repository->setMode($mode);
-        }
+        $this->initObject();
         return call_user_func_array(array($this->object,$method),$args);
+    }
+
+    /**
+     * Get a public field
+     * @param $name
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        $this->initObject();
+        return $this->object->$name;
+    }
+
+    /**
+     * Set a public field
+     * @param $name
+     * @param $value
+     */
+    public function __set($name, $value)
+    {
+        $this->initObject();
+        $this->object->$name = $value;
     }
 
     /**

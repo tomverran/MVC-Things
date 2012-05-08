@@ -1,6 +1,6 @@
 <?php
 namespace Application\Model\Repository;
-use Application\Model\Entity\Wrapper;
+use Application\Model\Wrapper\EntityWrapper;
 /**
  * A repository class that handles accessing and storing objects,
  * using an interface similar to that of an in memory data structure.
@@ -25,8 +25,9 @@ abstract class Repository
      * @var int
      */
     private $mode;
-    const EAGER = 0;
-    const LAZY = 1;
+    const EAGERLAZY = 0;
+    const EAGER = 1;
+    const LAZY = 2;
 
     /**
      * Construct a new repository.
@@ -45,13 +46,15 @@ abstract class Repository
     }
 
     /**
-     * Set Mode
+     * Set Performance Hint, one of Repository::EAGER, Repository::LAZY.
+     * Repository::EAGER will fetch objects as normal when requested,
+     * Repository::LAZY will wrap objects and only fetch them when they're used.
      * @param $mode
      * @throws \LogicException
      */
-    public function setMode($mode)
+    public function setPerformanceHint($mode)
     {
-        if (in_array($mode,array(Repository::EAGER,Repository::LAZY))) {
+        if (in_array($mode,array(Repository::EAGER,Repository::LAZY,Repository::EAGERLAZY))) {
             $this->mode = $mode;
         } else {
             throw new \LogicException('Bad Mode');
@@ -59,10 +62,11 @@ abstract class Repository
     }
 
     /**
-     * Get mode
+     * Get the performance hint, mainly used internally.
+     * See above for a more detailed description.
      * @return int
      */
-    public function getMode()
+    public function getPerformanceHint()
     {
         return $this->mode;
     }
@@ -119,10 +123,10 @@ abstract class Repository
      */
     public function get($id)
     {
-        if ($this->mode == Repository::EAGER) {
+        if ($this->mode != Repository::LAZY) {
             return $this->rowToObject($this->select()->where('id=?',$id)->query()->fetch());
         } else {
-            return new Wrapper($id, $this);
+            return new EntityWrapper($id, $this);
         }
     }
 
@@ -140,14 +144,14 @@ abstract class Repository
                 $id = self::$db->quote($id);
             }
         }
-        if ($this->mode == Repository::EAGER) {
+        if ($this->mode != Repository::LAZY) {
             return $this->rowsToObjects($this->select()
                         ->where('id IN ('.implode(',',$ids).')')
                         ->query()->fetchAll());
         } else {
             $final = array();
             foreach ($ids as $id) {
-                $final[$id] = new Wrapper($id, $this);
+                $final[$id] = new EntityWrapper($id, $this);
             }
             return $final;
         }

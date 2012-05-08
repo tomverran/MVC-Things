@@ -33,7 +33,7 @@ class Test {
         //initialisation
         $this->view = new View();
         $this->cars = new CarRepository(new EngineRepository());
-        $this->cars->setMode(Repository::LAZY);
+        $this->cars->setPerformanceHint(Repository::LAZY);
         $this->view->addScript('View/Header.phtml');
         $this->view['url'] = 'http://localhost/YetAnother/';
     }
