@@ -34,7 +34,7 @@ class EngineRepository extends Repository
      * @param $row
      * @return \Application\Model\Entity\Car
      */
-    protected function rowToObject(array $row)
+    protected function rowToObject(array $row, $hint)
     {
         return new Engine($row['id'], $row['suffix']);
     }

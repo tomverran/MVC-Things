@@ -3,9 +3,8 @@ namespace Application\Model\Wrapper;
 use Application\Model\Repository\Repository;
 /**
  * "Smoke and mirrors, Roy" ~ Maurice Moss
- * EntityWrapper.php - Allow specific domain objects
- * to be transparently lazy loaded by
- * pretending to be one.
+ * EntityWrapper.php - Virtual Proxy to allow specific domain objects
+ * to be transparently lazy loaded by pretending to be one.
  * @author Tom
  * @since 08/05/12
  */
@@ -43,10 +42,7 @@ class EntityWrapper
     private function initObject()
     {
         if (!isset($this->object)) {
-            $mode = $this->repository->getPerformanceHint();
-            $this->repository->setPerformanceHint(Repository::EAGERLAZY);
-            $this->object = $this->repository->get($this->id);
-            $this->repository->setPerformanceHint($mode);
+            $this->object = $this->repository->get($this->id, Repository::EAGER_LAZY);
         }
     }
 

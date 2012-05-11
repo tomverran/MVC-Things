@@ -24,8 +24,7 @@ abstract class Repository
     /**
      * @var int
      */
-    private $mode;
-    const EAGERLAZY = 0;
+    const EAGER_LAZY = 0;
     const EAGER = 1;
     const LAZY = 2;
 
@@ -36,7 +35,6 @@ abstract class Repository
      */
     public function __construct()
     {
-        $this->mode = self::EAGER;
         if (!isset(self::$db)) {
             self::$db = \Zend_Db::factory('mysqli',array('host'=>'localhost',
                                                          'dbname'=>'car',
@@ -46,29 +44,13 @@ abstract class Repository
     }
 
     /**
-     * Set Performance Hint, one of Repository::EAGER, Repository::LAZY.
-     * Repository::EAGER will fetch objects as normal when requested,
-     * Repository::LAZY will wrap objects and only fetch them when they're used.
-     * @param $mode
-     * @throws \LogicException
-     */
-    public function setPerformanceHint($mode)
-    {
-        if (in_array($mode,array(Repository::EAGER,Repository::LAZY,Repository::EAGERLAZY))) {
-            $this->mode = $mode;
-        } else {
-            throw new \LogicException('Bad Mode');
-        }
-    }
-
-    /**
-     * Get the performance hint, mainly used internally.
-     * See above for a more detailed description.
+     * Parse a performance hint
+     * @param int $hint
      * @return int
      */
-    public function getPerformanceHint()
+    private function parseHint($hint)
     {
-        return $this->mode;
+        return $hint == Repository::EAGER_LAZY ? Repository::LAZY : $hint;
     }
 
     /**
@@ -93,7 +75,7 @@ abstract class Repository
     }
 
     /**
-     * Save a domain object.
+     * Save a domain object
      * @param $object
      */
     public function save($object)
@@ -118,24 +100,26 @@ abstract class Repository
 
     /**
      * Get a single domain object
-     * @param int $id
-     * @return mixed
+     * @param int $id The object ID
+     * @param int $hint The performance hint to apply
+     * @return \Application\Model\Wrapper\EntityWrapper|void
      */
-    public function get($id)
+    public function get($id, $hint=Repository::EAGER)
     {
-        if ($this->mode != Repository::LAZY) {
-            return $this->rowToObject($this->select()->where('id=?',$id)->query()->fetch());
+        if ($hint != Repository::LAZY) {
+            return $this->rowToObject($this->select()->where('id=?',$id)->query()->fetch(), $this->parseHint($hint));
         } else {
             return new EntityWrapper($id, $this);
         }
     }
 
     /**
-     * Get Domain Objects by IDs.
-     * @param array $ids
-     * @return array|mixed
+     * Get multiple domain objects
+     * @param array $ids The IDs of objects to fetch
+     * @param int $hint Performance hint to apply to each
+     * @return array of domain objects.
      */
-    public function getByIds(array $ids)
+    public function getByIds(array $ids, $hint=Repository::EAGER)
     {
         if (!count($ids)) {
             return array();
@@ -144,10 +128,10 @@ abstract class Repository
                 $id = self::$db->quote($id);
             }
         }
-        if ($this->mode != Repository::LAZY) {
+        if ($hint != Repository::LAZY) {
             return $this->rowsToObjects($this->select()
                         ->where('id IN ('.implode(',',$ids).')')
-                        ->query()->fetchAll());
+                        ->query()->fetchAll(), $this->parseHint($hint));
         } else {
             $final = array();
             foreach ($ids as $id) {
@@ -158,9 +142,9 @@ abstract class Repository
     }
 
     /**
-     * Get Domain Objects by filters
+     * Get domain objects by filters
      * @param array $filters
-     * @return mixed
+     * @return array
      */
     public function getBy(array $filters)
     {
@@ -168,26 +152,28 @@ abstract class Repository
         foreach ($filters as $col=>$val) {
             $select->where(self::$db->quoteIdentifier($col).'=?',$val);
         }
-        return $this->rowsToObjects($this->select()->query()->fetchAll());
+        return $this->rowsToObjects($this->select()->query()->fetchAll(), Repository::EAGER);
     }
 
     /**
-     * Map
+     * Convert rows to domain objects
+     * @param array $row The row to convert
+     * @param $hint Performance hint for associations
      * @abstract
-     * @param array $row
      */
-    protected abstract function rowToObject(array $row);
+    protected abstract function rowToObject(array $row, $hint);
 
     /**
-     * Map many rows to domain objects
-     * @param array $rows
-     * @return array
+     * Convert many rows to domain objects
+     * @param array $rows the rows to convert
+     * @param $hint Performance hint to use .
+     * @return array of domain objects
      */
-    protected function rowsToObjects(array $rows)
+    protected function rowsToObjects(array $rows, $hint)
     {
         $final = array();
         foreach ($rows as $row) {
-            $final[$row['id']] = $this->rowToObject($row);
+            $final[$row['id']] = $this->rowToObject($row, $hint);
         }
         return $final;
     }

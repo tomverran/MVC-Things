@@ -33,7 +33,6 @@ class Test {
         //initialisation
         $this->view = new View();
         $this->cars = new CarRepository(new EngineRepository());
-        $this->cars->setPerformanceHint(Repository::LAZY);
         $this->view->addScript('View/Header.phtml');
         $this->view['url'] = 'http://localhost/YetAnother/';
     }
@@ -54,8 +53,8 @@ class Test {
      */
     public function cars()
     {
-        $car = $this->cars->get(1);
-        var_dump($car->getEngine());
+        $car = $this->cars->get(1, Repository::EAGER);
+        var_dump($car);
     }
 
     /**
