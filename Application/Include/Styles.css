@@ -2,32 +2,69 @@ body {
     margin: 0;
     padding: 0;
     font-family: sans-serif;
-    background-color: #eee;
-    color: #333;
+    background-color: rgba(33, 34, 59, 0.96);
+    font-family: 'Junge', serif;
+    color: white;
+}
+
+div.bg {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: fixed;
+    z-index: -1;
+    background-image: url('../Image/bg.png');
+    opacity: 0.1;
 }
 
 body > h1 {
     margin-left: 10%;
     margin-top: 20px;
     margin-bottom: 20px;
+
 }
 
 h1, h2 {
-    font-family: "Impact", sans-serif;
     font-weight: normal;
     padding:  0;
     margin: 0;
 }
 
-div {
+div.stuff {
     width: 80%;
-    height: 500px;
     background-color: white;
     margin-left: auto;
     margin-right: auto;
-    border: 1px solid #dcdcdc;
-    box-shadow: #dcdcdc 1px 1px 8px;
+    background-color: rgba(21, 22, 38, 0.96);
     margin-top: 20px;
     padding: 10px;
+
+   -moz-box-shadow:    inset 0 0 10px #000000;
+   -webkit-box-shadow: inset 0 0 10px #000000;
+   box-shadow:         inset 0 0 10px #000000;
 }
 
+div.gradientborder {
+    left: -10px;
+    right: 100%;
+    position: relative;
+    width: 100%;
+    height: 1px;
+    background: -moz-linear-gradient(left,  rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(255,255,255,0)), color-stop(50%,rgba(255,255,255,1)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 50%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 50%,rgba(255,255,255,0) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 50%,rgba(255,255,255,0) 100%); /* IE10+ */
+    background: linear-gradient(left,  rgba(255,255,255,0) 0%,rgba(255,255,255,1) 50%,rgba(255,255,255,0) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#00ffffff',GradientType=1 ); /* IE6-9 */
+}
+
+div.gradientborder.top {
+    top: -10px;
+}
+
+div.gradientborder.bottom {
+    margin-bottom: -10px;
+    top: 100%;
+}

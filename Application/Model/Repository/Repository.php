@@ -1,6 +1,7 @@
 <?php
 namespace Application\Model\Repository;
 use Application\Model\Wrapper\EntityWrapper;
+use Application\Model\Wrapper\FilterWraper;
 /**
  * A repository class that handles accessing and storing objects,
  * using an interface similar to that of an in memory data structure.
@@ -142,17 +143,22 @@ abstract class Repository
     }
 
     /**
-     * Get domain objects by filters
+     * Get by filters
      * @param array $filters
-     * @return array
+     * @param int $hint One of the constants
+     * @return \Application\Model\Wrapper\FilterWraper|array
      */
-    public function getBy(array $filters)
+    public function getBy(array $filters, $hint=Repository::EAGER)
     {
         $select = $this->select();
         foreach ($filters as $col=>$val) {
             $select->where(self::$db->quoteIdentifier($col).'=?',$val);
         }
-        return $this->rowsToObjects($this->select()->query()->fetchAll(), Repository::EAGER);
+        if ($hint != Repository::LAZY) {
+            return $this->rowsToObjects($this->select()->query()->fetchAll(), $this->parseHint($hint));
+        } else {
+            return new FilterWraper($this,$filters);
+        }
     }
 
     /**
@@ -166,7 +172,7 @@ abstract class Repository
     /**
      * Convert many rows to domain objects
      * @param array $rows the rows to convert
-     * @param $hint Performance hint to use .
+     * @param int $hint Performance hint to use .
      * @return array of domain objects
      */
     protected function rowsToObjects(array $rows, $hint)

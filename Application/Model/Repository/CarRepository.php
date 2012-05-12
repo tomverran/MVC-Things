@@ -45,7 +45,7 @@ class CarRepository extends \Application\Model\Repository\Repository
      * @param $row
      * @return \Application\Model\Entity\Car
      */
-    protected function rowToObject(array $row, $hint=Repository::EAGER)
+    protected function rowToObject(array $row, $hint)
     {
         $car = new Car($row['id'], $row['engine_id'], $row['chassis_id'], $row['name']);
         $car->setEngine($this->engineRepository->get($car->getEngineId(), $hint));
@@ -57,14 +57,14 @@ class CarRepository extends \Application\Model\Repository\Repository
      * @param array $rows
      * @return array
      */
-    protected function rowsToObjects(array $rows)
+    protected function rowsToObjects(array $rows, $hint)
     {
         $ids = array_map(function($row) {
             return $row['id'];
         },$rows);
 
         //fetch in engines required by our cars.
-        $engines = $this->engineRepository->getByIds($ids);
+        $engines = $this->engineRepository->getByIds($ids, $hint);
         $final = array();
 
         //re-create our cars.
