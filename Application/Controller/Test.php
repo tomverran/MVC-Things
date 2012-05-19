@@ -7,7 +7,7 @@ use Application\Library\View;
 use Framework\Loader;
 use Framework\Router;
 /**
- * Testing web hooks!
+ * Testing web hooks! And again D:
  * An example controller. We don't extend any base classes here
  * for simplicity, but you'll probably want to create a base class
  * if you plan to output headers and such as we're doing here.
