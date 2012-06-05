@@ -1,3 +1,0 @@
-[submodule "Application/Library/Zend"]
-	path = Application/Library/Zend
-	url = git://github.com/dmelo/Zend-1.11.git
