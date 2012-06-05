@@ -1,17 +1,19 @@
 <?php
 namespace Framework;
+
 /**
  * A Router class that tells the bootstrap what to execute
  * based on the URI the user has accessed the framework with
  */
-class Router {
-
+class Router
+{
     private static $instance;
     private $controller;
     private $method;
     private $params;
 
-    protected function __construct() {
+    protected function __construct()
+    {
         $this->parse();
     }
 
@@ -31,8 +33,8 @@ class Router {
      * Parse $_SERVER['REQUEST_URI'] extracting
      * controller and method routing information.
      */
-    private function parse() {
-
+    private function parse()
+    {
         $matches = array(); //get only arguments passed via slashes by diffing against SCRIPT_NAME
         preg_match('/'.preg_quote($_SERVER['SCRIPT_NAME'],'/').'(.*)/',$_SERVER['REQUEST_URI'],$matches);
 
@@ -51,10 +53,11 @@ class Router {
      * @return mixed the fixed string.
      * @static.
      */
-    private static function camelCase($word, $capital=true) {
+    private static function camelCase($word, $capital=true)
+    {
         $regex = $capital ? '/([^A-Za-z]|^)(\w)/' : '/[^A-Za-z](\w)/';
         return preg_replace_callback($regex,function($match) {
-            return strtoupper(array_pop($match)); //can this be done in pure regex?
+            return strtoupper(array_pop($match));
         }, $word);
     }
 
@@ -62,7 +65,8 @@ class Router {
      * Get the controller
      * @return mixed
      */
-    public function getController() {
+    public function getController()
+    {
         return $this->controller ? $this->controller : 'Index';
     }
 
@@ -70,7 +74,8 @@ class Router {
      * Get the method
      * @return mixed
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->method ? $this->method : 'index';
     }
 
@@ -78,7 +83,8 @@ class Router {
      * Get the params
      * @return mixed
      */
-    public function getParams() {
+    public function getParams()
+    {
         return $this->params ? $this->params : array();
     }
 }

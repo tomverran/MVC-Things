@@ -1,29 +1,31 @@
 <?php
-    //Create an instance of our loader.
-    include('Framework/Loader.php');
-    Framework\Loader::getInstance();
+header('Content-type: text/html; charset=UTF-8') ;
 
-    //handle URI routing
-    $router = Framework\Router::getInstance();
-    $uriController = 'Controller\\'.$router->getController();
+//Create an instance of our loader.
+include('Framework/Loader.php');
+Framework\Loader::getInstance();
 
-    //create controller
-    if (class_exists($uriController)) {
+//handle URI routing
+$router = Framework\Router::getInstance();
+$uriController = 'Controller\\'.$router->getController();
 
-        $rc = new ReflectionClass($uriController);
-        $uriMethod = $router->getMethod();
+//create controller
+if (class_exists($uriController)) {
 
-        //invoke our action method on our controller
-        if (!$rc->isAbstract() && $rc->hasMethod($uriMethod) && $rc->getMethod($uriMethod)->isPublic()) {
-            $controller = new $uriController;
+    $rc = new ReflectionClass($uriController);
+    $uriMethod = $router->getMethod();
 
-            $rc->getMethod($uriMethod)->invokeArgs($controller,$router->getParams());
-            $ran = true;
-        }
+    //invoke our action method on our controller
+    if (!$rc->isAbstract() && $rc->hasMethod($uriMethod) && $rc->getMethod($uriMethod)->isPublic()) {
+        $controller = new $uriController;
+
+        $rc->getMethod($uriMethod)->invokeArgs($controller,$router->getParams());
+        $ran = true;
     }
+}
 
-    //basic 404 page
-    if (!isset($ran)) {
-        header('HTTP/1.0 404 Not Found');
-        echo '<h1>404</h1><p>page not found</p>';
-    }
+//basic 404 page
+if (!isset($ran)) {
+    header('HTTP/1.0 404 Not Found');
+    echo '<h1>404</h1><p>page not found</p>';
+}

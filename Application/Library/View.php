@@ -8,9 +8,33 @@ namespace Library;
  */
 class View implements \ArrayAccess
 {
-
+    /**
+     * @var array The vars our views can access
+     */
     private $vars = array();
-    private $scripts;
+
+    /**
+     * @var array of script file names
+     */
+    private $scripts = array();
+
+    /**
+     * Escape a string or array
+     * @param string|array $input
+     * @return string|array
+     */
+    public function escape($input)
+    {
+        if (is_array($input)) {
+            $output = array();
+            foreach ($input as $key=>$item) {
+                $output[$key] = $this->escape($item);
+            }
+            return $output;
+        } else {
+            return htmlentities($input, ENT_QUOTES, 'UTF-8');
+        }
+    }
 
     /**
      * ArrayAccess get an offset
@@ -66,31 +90,13 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Escape
-     * @param $var
-     * @return array|string
+     * Render all of our scripts
+     * in the order which they were supplied
      */
-    public function escape($var)
+    public function render()
     {
-        if (is_array($var)) {
-            return array_map('htmlentities',$var);
-        } else if (!is_object($var)) {
-           return htmlentities($var);
-        } else {
-            return $var;
-        }
-    }
-
-    /**
-     * Render.
-     * @param bool $escape
-     */
-    public function render($escape = false)
-    {
-        $function = $escape ? array($this,'escape') : null;
-        $loader = \Framework\Loader::getInstance();
         foreach ($this->scripts as $script) {
-            $loader->loadScript($script,$this->vars,$function);
+            include $script;
         }
     }
 }

@@ -1,5 +1,6 @@
 <?php
 namespace Framework;
+
 /**
  * The loader class that is basically the core of this "framework"
  * it handles autoloading namespaces, as you would, and also
@@ -58,24 +59,5 @@ class Loader
             }
         }
         return false;
-    }
-
-    /**
-     * Load a procedural Script.
-     * @param string $script the script name
-     * @param array $args arguments to supply
-     * @param string|array|null $function a function to apply to all arg values.
-     */
-    public function loadScript($script, $args=array(), $function=null) {
-
-        //handle filtering the given variables with a callback
-        if (is_callable($function)) {
-            foreach ($args as $k=>$v) {
-                $args[$k] = call_user_func($function,$v);
-            }
-        }
-
-        extract($args);
-        include self::$appDir.$script;
     }
 }

@@ -14,7 +14,6 @@ div.bg {
     right: 0;
     position: fixed;
     z-index: -1;
-    background-image: url('../Image/bg.png');
     opacity: 0.1;
 }
 

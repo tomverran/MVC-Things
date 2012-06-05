@@ -1,18 +1,16 @@
 <?php
 namespace Controller;
-use Library\View;
-
 use Framework\Loader;
 use Framework\Router;
+use Library\View;
+
 /**
- * Testing web hooks! And again D:
  * An example controller. We don't extend any base classes here
  * for simplicity, but you'll probably want to create a base class
  * if you plan to output headers and such as we're doing here.
  */
-class Index {
-
-
+class Index
+{
     /**
      * @var \Library\View
      */
@@ -25,10 +23,9 @@ class Index {
      */
     public function __construct()
     {
-        //initialisation
         $this->view = new View();
         $this->view->addScript('View/Header.phtml');
-        $this->view['url'] = 'http://localhost/YetAnother/';
+        $this->view['url'] = 'http://localhost/MVC-Things/';
     }
 
     /**
@@ -44,10 +41,11 @@ class Index {
 
     /**
      * Destruct this Controller,
-     * outputting a footer if the method ran.
+     * outputting a footer.
      */
-    public function __destruct() {
+    public function __destruct()
+    {
         $this->view->addScript('View/Footer.phtml');
-        $this->view->render(false);
+        $this->view->render();
     }
 }

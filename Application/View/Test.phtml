@@ -1,7 +1,7 @@
 <h2>Success!</h2>
 <p>This Web Page has been generated through MVC. Here is some proof.</p>
 <ul>
-    <li>Controller: <?php echo $controller?></li>
-    <li>Method: <?php echo $method?></li>
-    <li>Parameters: <?php echo $params?></li>
+    <li>Controller: <?=$this['controller']; ?></li>
+    <li>Method: <?=$this['method']; ?></li>
+    <li>Parameters: <?=$this->escape($this['params']); ?></li>
 </ul>
