@@ -1,14 +1,13 @@
 <?php
 namespace Framework;
-include('Singleton.php');
 /**
  * The loader class that is basically the core of this "framework"
  * it handles autoloading namespaces, as you would, and also
  * reading Application/Loader to let you load additional libs.
- * @method static \Framework\Loader getInstance();
  */
-class Loader extends Singleton
+class Loader
 {
+    private static $instance;
     public static $namespace;
     public static $baseDir;
     public static $appDir;
@@ -31,6 +30,18 @@ class Loader extends Singleton
         spl_autoload_extensions('.php');
         spl_autoload_register(); //handle default loading of namespaces
         spl_autoload_register(array($this,'zend'));
+    }
+
+    /**
+     * Get an instance of our loader
+     * @return Loader
+     */
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new Loader();
+        }
+        return self::$instance;
     }
 
     /**

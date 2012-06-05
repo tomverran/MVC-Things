@@ -1,20 +1,30 @@
 <?php
 namespace Framework;
-
 /**
  * A Router class that tells the bootstrap what to execute
  * based on the URI the user has accessed the framework with
- * @method static \Framework\Router getInstance();
  */
-class Router extends Singleton {
+class Router {
 
+    private static $instance;
     private $controller;
     private $method;
     private $params;
 
     protected function __construct() {
-        parent::__construct();
         $this->parse();
+    }
+
+    /**
+     * Get an instance of our router
+     * @return Router
+     */
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new Router();
+        }
+        return self::$instance;
     }
 
     /**
