@@ -1,9 +1,7 @@
 <?php
-namespace Application\Controller;
-use Application\Model\Repository\EngineRepository;
-use Application\Model\Repository\CarRepository;
-use Application\Model\Repository\Repository;
-use Application\Library\View;
+namespace Controller;
+use Library\View;
+
 use Framework\Loader;
 use Framework\Router;
 /**
@@ -12,17 +10,13 @@ use Framework\Router;
  * for simplicity, but you'll probably want to create a base class
  * if you plan to output headers and such as we're doing here.
  */
-class Test {
+class Index {
+
 
     /**
-     * @var \Application\View
+     * @var \Library\View
      */
     private $view;
-
-    /**
-     * @var \Application\Model\Repository\CarRepository
-     */
-    private $cars;
 
     /**
      * Construct this test controller,
@@ -33,7 +27,6 @@ class Test {
     {
         //initialisation
         $this->view = new View();
-        $this->cars = new CarRepository(new EngineRepository());
         $this->view->addScript('View/Header.phtml');
         $this->view['url'] = 'http://localhost/YetAnother/';
     }
@@ -47,15 +40,6 @@ class Test {
         $this->view['controller'] = Router::getInstance()->getController();
         $this->view['params'] = implode(',',Router::getInstance()->getParams());
         $this->view->addScript('View/Test.phtml');
-    }
-
-    /**
-     * Don't mind me, just playing about with MVC things.
-     */
-    public function cars()
-    {
-        $car = $this->cars->get(1, Repository::EAGER);
-        var_dump($car);
     }
 
     /**

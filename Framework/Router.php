@@ -30,7 +30,6 @@ class Router extends Singleton {
             $trimmedParts = array_filter(explode('/',$matches[1]));
             $this->controller = self::camelCase(array_shift($trimmedParts));
             $this->method = self::camelCase(array_shift($trimmedParts),false);
-            if (!$this->method) $this->method = 'index';
             $this->params = $trimmedParts;
         }
     }
@@ -54,7 +53,7 @@ class Router extends Singleton {
      * @return mixed
      */
     public function getController() {
-        return $this->controller;
+        return $this->controller ? $this->controller : 'Index';
     }
 
     /**
@@ -62,7 +61,7 @@ class Router extends Singleton {
      * @return mixed
      */
     public function getMethod() {
-        return $this->method;
+        return $this->method ? $this->method : 'index';
     }
 
     /**
@@ -70,6 +69,6 @@ class Router extends Singleton {
      * @return mixed
      */
     public function getParams() {
-        return $this->params;
+        return $this->params ? $this->params : array();
     }
 }

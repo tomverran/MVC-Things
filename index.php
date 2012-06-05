@@ -5,7 +5,7 @@
 
     //handle URI routing
     $router = Framework\Router::getInstance();
-    $uriController = str_replace('/','\\',Framework\Loader::APP_DIR).'Controller\\'.$router->getController();
+    $uriController = 'Controller\\'.$router->getController();
 
     //create controller
     if (class_exists($uriController)) {
@@ -16,6 +16,7 @@
         //invoke our action method on our controller
         if (!$rc->isAbstract() && $rc->hasMethod($uriMethod) && $rc->getMethod($uriMethod)->isPublic()) {
             $controller = new $uriController;
+
             $rc->getMethod($uriMethod)->invokeArgs($controller,$router->getParams());
             $ran = true;
         }

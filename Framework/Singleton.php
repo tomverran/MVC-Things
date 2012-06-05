@@ -1,5 +1,4 @@
 <?php
-
 namespace Framework;
 /**
  * Basic singleton class so we don't have to have global

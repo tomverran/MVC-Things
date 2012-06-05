@@ -9,19 +9,28 @@ include('Singleton.php');
  */
 class Loader extends Singleton
 {
-    private $path = '.';
-    const APP_DIR = 'Application/';
-    const LIB_DIR = 'Application/Library/';
+    public static $namespace;
+    public static $baseDir;
+    public static $appDir;
+    public static $libDir;
 
     /**
      * Construct our loader.
      */
-    protected function __construct() {
+    protected function __construct()
+    {
+        $p = DIRECTORY_SEPARATOR;
+        self::$baseDir = dirname(__FILE__)."$p..$p";
+        self::$appDir = self::$baseDir."Application$p";
+        self::$libDir = self::$appDir."Library$p";
+
+        set_include_path(get_include_path().
+            PATH_SEPARATOR.self::$libDir.
+            PATH_SEPARATOR.self::$appDir);
+
         spl_autoload_extensions('.php');
         spl_autoload_register(); //handle default loading of namespaces
-        set_include_path(get_include_path().PATH_SEPARATOR.self::LIB_DIR);
         spl_autoload_register(array($this,'zend'));
-        $this->setBasePath(dirname(__FILE__).'/../');
     }
 
     /**
@@ -32,31 +41,12 @@ class Loader extends Singleton
     private function zend($class)
     {
         if (strpos($class,'_')!==false) {
-            $name = self::LIB_DIR.str_replace('_','/',$class).'.php';
-            if (file_exists($name)) {
-                include $name;
-                return (class_exists($class));
+            $name = str_replace('_',DIRECTORY_SEPARATOR,$class).'.php';
+            if (file_exists(self::$libDir.$name) && include $name) {
+                return true;
             }
         }
         return false;
-    }
-
-    /**
-     * Set the path to the Application/ folder,
-     * to know where to find Scripts and such.
-     * @param string $path the absolute path.
-     */
-    private function setBasePath($path) {
-        if (!is_dir($path)) throw new \Exception('Bad Path');
-        $this->path = $path;
-    }
-
-    /**
-     * Get the Base Path
-     * @return string
-     */
-    public function getBasePath() {
-        return $this->path;
     }
 
     /**
@@ -75,6 +65,6 @@ class Loader extends Singleton
         }
 
         extract($args);
-        include $this->path.Loader::APP_DIR.$script;
+        include self::$appDir.$script;
     }
 }

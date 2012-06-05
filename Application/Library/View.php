@@ -1,5 +1,5 @@
 <?php
-namespace Application\Library;
+namespace Library;
 
 /**
  * A simple helper class to allow
