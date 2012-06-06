@@ -10,7 +10,6 @@ class Router
     private static $instance;
     private $controller;
     private $method;
-    private $params;
 
     protected function __construct()
     {
@@ -35,14 +34,15 @@ class Router
      */
     private function parse()
     {
-        $matches = array(); //get only arguments passed via slashes by diffing against SCRIPT_NAME
-        preg_match('/'.preg_quote($_SERVER['SCRIPT_NAME'],'/').'(.*)/',$_SERVER['REQUEST_URI'],$matches);
+        if ($pos = strpos($_SERVER['REQUEST_URI'],'?')!==false) {
+            $urlParts = explode('/',substr($_SERVER['REQUEST_URI'],0,$pos));
+        } else {
+            $urlParts = explode('/',$_SERVER['REQUEST_URI']);
+        }
 
-        if (count($matches) > 1) {
-            $trimmedParts = array_filter(explode('/',$matches[1]));
-            $this->controller = self::camelCase(array_shift($trimmedParts));
-            $this->method = self::camelCase(array_shift($trimmedParts),false);
-            $this->params = $trimmedParts;
+        if (count($urlParts) > 2) {
+            $this->method = self::camelCase(array_pop($trimmedParts),false);
+            $this->controller = self::camelCase(array_pop($trimmedParts));
         }
     }
 
@@ -77,14 +77,5 @@ class Router
     public function getMethod()
     {
         return $this->method ? $this->method : 'index';
-    }
-
-    /**
-     * Get the params
-     * @return mixed
-     */
-    public function getParams()
-    {
-        return $this->params ? $this->params : array();
     }
 }

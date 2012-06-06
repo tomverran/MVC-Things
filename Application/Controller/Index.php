@@ -3,6 +3,7 @@ namespace Controller;
 use Framework\Loader;
 use Framework\Router;
 use Library\View;
+use Library\Http;
 
 /**
  * An example controller. We don't extend any base classes here
@@ -35,7 +36,6 @@ class Index
     {
         $this->view['method'] = Router::getInstance()->getMethod();
         $this->view['controller'] = Router::getInstance()->getController();
-        $this->view['params'] = implode(',',Router::getInstance()->getParams());
         $this->view->addScript('View/Test.phtml');
     }
 

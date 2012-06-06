@@ -17,9 +17,8 @@ if (class_exists($uriController)) {
 
     //invoke our action method on our controller
     if (!$rc->isAbstract() && $rc->hasMethod($uriMethod) && $rc->getMethod($uriMethod)->isPublic()) {
-        $controller = new $uriController;
-
-        $rc->getMethod($uriMethod)->invokeArgs($controller,$router->getParams());
+        $controller = $rc->newInstance();
+        $rc->getMethod($uriMethod)->invokeArgs($controller,array());
         $ran = true;
     }
 }
