@@ -41,8 +41,8 @@ class Router
         }
 
         if (count($urlParts) > 2) {
-            $this->method = self::camelCase(array_pop($trimmedParts),false);
-            $this->controller = self::camelCase(array_pop($trimmedParts));
+            $this->method = self::camelCase(array_pop($urlParts),false);
+            $this->controller = self::camelCase(array_pop($urlParts));
         }
     }
 
