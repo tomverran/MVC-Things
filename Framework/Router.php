@@ -9,10 +9,12 @@ class Router
 {
     private static $instance;
     private $controller;
+    private $config;
     private $method;
 
     protected function __construct()
     {
+        $this->config = new Config('router');
         $this->parse();
     }
 
@@ -34,15 +36,22 @@ class Router
      */
     private function parse()
     {
-        if ($pos = strpos($_SERVER['REQUEST_URI'],'?')!==false) {
-            $urlParts = explode('/',substr($_SERVER['REQUEST_URI'],0,$pos));
+        $uri = 'http'. (isset($_SERVER['HTTPS']) ? 's' : null) .'://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $uri = str_replace($this->config->get('base_url'),'',$uri);
+
+        if ($pos = strpos($uri,'?')!==false) {
+            $urlParts = explode('/',substr($uri,0,$pos));
         } else {
-            $urlParts = explode('/',$_SERVER['REQUEST_URI']);
+            $urlParts = explode('/',$uri);
         }
 
-        if (count($urlParts) > 2) {
-            $this->method = self::camelCase(array_pop($urlParts),false);
-            $this->controller = self::camelCase(array_pop($urlParts));
+        $vars = array('controller', 'method');
+        foreach ($vars as $index=>$var) {
+            if (isset($urlParts[$index])) {
+                $this->$var = $urlParts[$index];
+            } else {
+                break;
+            }
         }
     }
 

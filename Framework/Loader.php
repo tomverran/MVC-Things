@@ -3,30 +3,29 @@ namespace Framework;
 
 /**
  * The loader class that is basically the core of this "framework"
- * it handles autoloading namespaces, as you would, and also
- * reading Application/Loader to let you load additional libs.
+ * it handles loading namespaced classes and Zend style (underscored) classes
  */
 class Loader
 {
     private static $instance;
-    public static $namespace;
-    public static $baseDir;
-    public static $appDir;
-    public static $libDir;
+    private $baseDir;
+    private $appDir;
+    private $libDir;
 
     /**
      * Construct our loader.
+     * @param string $dir The base directory
      */
-    protected function __construct()
+    protected function __construct($dir)
     {
         $p = DIRECTORY_SEPARATOR;
-        self::$baseDir = dirname(__FILE__)."$p..$p";
-        self::$appDir = self::$baseDir."Application$p";
-        self::$libDir = self::$appDir."Library$p";
+        $this->baseDir = $dir.$p;
+        $this->appDir = $this->baseDir."Application$p";
+        $this->libDir = $this->appDir."Library$p";
 
         set_include_path(get_include_path().
-            PATH_SEPARATOR.self::$libDir.
-            PATH_SEPARATOR.self::$appDir);
+            PATH_SEPARATOR.$this->libDir.
+            PATH_SEPARATOR.$this->appDir);
 
         spl_autoload_extensions('.php');
         spl_autoload_register(); //handle default loading of namespaces
@@ -34,15 +33,34 @@ class Loader
     }
 
     /**
-     * Get an instance of our loader
+     * Initialise class loading.
+     * Called once, by the bootstrap
+     * @static
+     * @param string $dir The base directory
+     * @throws \RuntimeException
+     */
+    public static function init($dir)
+    {
+        if (!self::$instance) {
+            self::$instance = new Loader($dir);
+        } else {
+            throw new \RuntimeException('Loader already initialised');
+        }
+    }
+
+    /**
+     * Get the instance of our loader
+     * @static
      * @return Loader
+     * @throws \UnexpectedValueException if not loaded
      */
     public static function getInstance()
     {
-        if (!self::$instance) {
-            self::$instance = new Loader();
+        if (isset(self::$instance)) {
+            return self::$instance;
+        } else {
+            throw new \UnexpectedValueException('Loader not initialised.');
         }
-        return self::$instance;
     }
 
     /**
@@ -54,10 +72,19 @@ class Loader
     {
         if (strpos($class,'_')!==false) {
             $name = str_replace('_',DIRECTORY_SEPARATOR,$class).'.php';
-            if (file_exists(self::$libDir.$name) && include $name) {
+            if (file_exists($this->libDir.$name) && include $name) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Get the base directory
+     * @return string
+     */
+    public function getBaseDirectory()
+    {
+        return $this->baseDir;
     }
 }

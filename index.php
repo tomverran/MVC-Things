@@ -3,7 +3,7 @@ header('Content-type: text/html; charset=UTF-8') ;
 
 //Create an instance of our loader.
 include('Framework/Loader.php');
-Framework\Loader::getInstance();
+Framework\Loader::init(getcwd());
 
 //handle URI routing
 $router = Framework\Router::getInstance();
