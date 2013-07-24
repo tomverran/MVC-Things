@@ -1,9 +1,7 @@
 <?php
 namespace Controller;
-use Framework\Loader;
 use Framework\Router;
 use Library\View;
-use Library\Http;
 
 /**
  * An example controller. We don't extend any base classes here
@@ -25,7 +23,7 @@ class Index
     public function __construct()
     {
         $this->view = new View();
-        $this->view->addScript('View/Header.phtml');
+        $this->view->addScript('Header.phtml');
         $this->view['url'] = 'http://localhost/MVC-Things/';
     }
 
@@ -36,7 +34,7 @@ class Index
     {
         $this->view['method'] = Router::getInstance()->getMethod();
         $this->view['controller'] = Router::getInstance()->getController();
-        $this->view->addScript('View/Test.phtml');
+        $this->view->addScript('Test.phtml');
     }
 
     /**
@@ -45,7 +43,7 @@ class Index
      */
     public function __destruct()
     {
-        $this->view->addScript('View/Footer.phtml');
+        $this->view->addScript('Footer.phtml');
         $this->view->render();
     }
 }

@@ -96,7 +96,7 @@ class View implements \ArrayAccess
     public function render()
     {
         foreach ($this->scripts as $script) {
-            include $script;
+            include 'Application' . DIRECTORY_SEPARATOR . 'View' . DIRECTORY_SEPARATOR . $script;
         }
     }
 }

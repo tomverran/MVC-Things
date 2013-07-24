@@ -1,9 +1,11 @@
 <?php
-header('Content-type: text/html; charset=UTF-8') ;
+header('Content-type: text/html; charset=UTF-8');
 
 //Create an instance of our loader.
-include('Framework/Loader.php');
-Framework\Loader::init(getcwd());
+require('vendor/autoload.php');
+
+//we need to setup the include path for ViewScript including relative to here
+set_include_path(get_include_path().PATH_SEPARATOR.getcwd());
 
 //handle URI routing
 $router = Framework\Router::getInstance();

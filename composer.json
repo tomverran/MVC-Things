@@ -1,0 +1,11 @@
+{
+    "require": {
+    },
+    "autoload": {
+        "psr-0": {
+            "Library": "Application",
+            "Controller": "Application",
+            "Framework": ""
+        }
+    }
+}
