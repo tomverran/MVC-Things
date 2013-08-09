@@ -1,5 +1,7 @@
 <?php
+$phpClasses = get_declared_classes();
 header('Content-type: text/html; charset=UTF-8');
+
 
 //Create an instance of our loader.
 require('vendor/autoload.php');
@@ -30,3 +32,6 @@ if (!isset($ran)) {
     header('HTTP/1.0 404 Not Found');
     echo '<h1>404</h1><p>page not found</p>';
 }
+
+var_dump(array_diff(get_declared_classes(), $phpClasses));
+

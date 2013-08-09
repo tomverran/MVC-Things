@@ -2,6 +2,7 @@
 namespace Controller;
 use Framework\Router;
 use Library\View;
+use Library\DI;
 
 /**
  * An example controller. We don't extend any base classes here
@@ -32,6 +33,10 @@ class Index
      */
     public function index()
     {
+        $compiler = new DI\Build\Compiler();
+        $compiler->compileAll();
+
+
         $this->view['method'] = Router::getInstance()->getMethod();
         $this->view['controller'] = Router::getInstance()->getController();
         $this->view->addScript('Test.phtml');
