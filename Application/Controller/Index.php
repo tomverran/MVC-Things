@@ -1,8 +1,7 @@
 <?php
 namespace Controller;
 use Framework\Router;
-use Library\View;
-use Library\DI;
+use Library\Ioc\Container\Library;
 
 /**
  * An example controller. We don't extend any base classes here
@@ -23,7 +22,7 @@ class Index
      */
     public function __construct()
     {
-        $this->view = new View();
+        $this->view = Library::View();
         $this->view->addScript('Header.phtml');
         $this->view['url'] = 'http://localhost/MVC-Things/';
     }
@@ -33,10 +32,6 @@ class Index
      */
     public function index()
     {
-        $compiler = new DI\Build\Compiler();
-        $compiler->compileAll();
-
-
         $this->view['method'] = Router::getInstance()->getMethod();
         $this->view['controller'] = Router::getInstance()->getController();
         $this->view->addScript('Test.phtml');

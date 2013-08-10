@@ -1,11 +1,25 @@
 {
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://carefulcoder.co.uk/composer"
+        }
+    ],
+
     "require": {
+        "carefulcoder/phpioc": "*"
     },
+
     "autoload": {
         "psr-0": {
             "Library": "Application",
             "Controller": "Application",
             "Framework": ""
         }
-    }
+    },
+
+    "config": {
+   		"preferred-install": "dist"
+   	},
+   	"minimum-stability": "dev"
 }

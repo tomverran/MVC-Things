@@ -1,8 +1,0 @@
-    public static function {CLASS}({PARAMETERS})
-    {
-        if (!isset(self::$mocks['{CLASS}'])) {
-            return new \{NAMESPACE}({PARAMETERS});
-        } else {
-            return self::$mocks['{CLASS}'];
-        }
-    }
