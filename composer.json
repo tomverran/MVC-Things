@@ -6,16 +6,18 @@
         }
     ],
 
-    "require": {
-        "carefulcoder/phpioc": "*"
-    },
-
     "autoload": {
         "psr-0": {
-            "Library": "Application",
-            "Controller": "Application",
-            "Framework": ""
+            "Model": "Iguana/Application",
+            "Library": "Iguana/Application",
+            "Controller": "Iguana/Application",
+            "Framework": "Iguana/"
         }
+    },
+
+    "require": {
+        "zetacomponents/base": "dev-master",
+        "zetacomponents/configuration": "1.3.5"
     },
 
     "config": {

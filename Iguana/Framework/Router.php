@@ -7,14 +7,13 @@ namespace Framework;
  */
 class Router
 {
+    use Configurable;
     private static $instance;
     private $controller;
-    private $config;
     private $method;
 
     protected function __construct()
     {
-        $this->config = new Config('router');
         $this->parse();
     }
 
@@ -36,8 +35,9 @@ class Router
      */
     private function parse()
     {
+        //$this->put('base_url', 'wifhweifh');
         $uri = 'http'. (isset($_SERVER['HTTPS']) ? 's' : null) .'://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $uri = str_replace($this->config->get('base_url'),'',$uri);
+        $uri = str_replace(self::get('base_url'),'',$uri);
 
         if ($pos = strpos($uri,'?')!==false) {
             $urlParts = explode('/',substr($uri,0,$pos));
@@ -57,7 +57,7 @@ class Router
 
     /**
      * Convert a string to a CamelCase one.
-     * @param $word the word(s) to convert over
+     * @param string $word the word(s) to convert over
      * @param bool $capital whether to capitalise the first letter (camelCase v CamelCase)
      * @return mixed the fixed string.
      * @static.

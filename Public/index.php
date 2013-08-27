@@ -1,13 +1,12 @@
 <?php
-$phpClasses = get_declared_classes();
 header('Content-type: text/html; charset=UTF-8');
 
+//we need to setup the include path for ViewScript including relative to outside the web root
+$upOneLevel = dirname(__FILE__) . DIRECTORY_SEPARATOR . '../';
+set_include_path(get_include_path() . PATH_SEPARATOR . $upOneLevel . PATH_SEPARATOR . $upOneLevel . 'Iguana');
 
 //Create an instance of our loader.
-require('vendor/autoload.php');
-
-//we need to setup the include path for ViewScript including relative to here
-set_include_path(get_include_path().PATH_SEPARATOR.getcwd());
+require('../vendor/autoload.php');
 
 //handle URI routing
 $router = Framework\Router::getInstance();
@@ -32,6 +31,3 @@ if (!isset($ran)) {
     header('HTTP/1.0 404 Not Found');
     echo '<h1>404</h1><p>page not found</p>';
 }
-
-var_dump(array_diff(get_declared_classes(), $phpClasses));
-

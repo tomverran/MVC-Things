@@ -1,7 +1,7 @@
 <?php
 namespace Controller;
 use Framework\Router;
-use Library\Ioc\Container\Library;
+use Library\View;
 
 /**
  * An example controller. We don't extend any base classes here
@@ -22,9 +22,9 @@ class Index
      */
     public function __construct()
     {
-        $this->view = Library::View();
+        $this->view = new View();
         $this->view->addScript('Header.phtml');
-        $this->view['url'] = 'http://localhost/MVC-Things/';
+        $this->view['url'] = Router::get('base_url');
     }
 
     /**
