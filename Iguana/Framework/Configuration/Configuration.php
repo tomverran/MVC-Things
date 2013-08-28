@@ -13,19 +13,24 @@ namespace Framework\Configuration;
 interface Configuration
 {
     /**
+     * Set a group for all subsequent reads and writes so multiple things can use the same keys
+     * @param string $group
+     * @return void
+     */
+    public function setGroup($group);
+
+    /**
      * Put a value into the configuration
-     * @param string $group Group to put the key / value into
      * @param string $key The key to save
      * @param string $value The value
      * @return void
      */
-    public function put($group, $key, $value);
+    public function put($key, $value);
 
     /**
      * Get a value from the configuration
-     * @param string $group The group
      * @param string $key The key
      * @return string The value
      */
-    public function get($group, $key);
+    public function get($key);
 }

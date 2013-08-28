@@ -11,6 +11,7 @@ class Router
     private static $instance;
     private $controller;
     private $method;
+    private $params;
 
     protected function __construct()
     {
@@ -35,9 +36,8 @@ class Router
      */
     private function parse()
     {
-        //$this->put('base_url', 'wifhweifh');
         $uri = 'http'. (isset($_SERVER['HTTPS']) ? 's' : null) .'://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $uri = str_replace(self::get('base_url'),'',$uri);
+        $uri = str_replace($this->getConfig()->get('base_url'),'',$uri);
 
         if ($pos = strpos($uri,'?')!==false) {
             $urlParts = explode('/',substr($uri,0,$pos));
@@ -45,14 +45,15 @@ class Router
             $urlParts = explode('/',$uri);
         }
 
-        $vars = array('controller', 'method');
-        foreach ($vars as $index=>$var) {
-            if (isset($urlParts[$index])) {
-                $this->$var = $urlParts[$index];
-            } else {
-                break;
-            }
+        if (!empty($urlParts)) {
+            $this->controller = array_shift($urlParts);
         }
+
+        if (!empty($urlParts)) {
+            $this->method = array_shift($urlParts);
+        }
+
+        $this->params = $urlParts;
     }
 
     /**
@@ -76,7 +77,7 @@ class Router
      */
     public function getController()
     {
-        return $this->controller ? $this->controller : 'Index';
+        return $this->controller ?: $this->getConfig()->get('default_controller');
     }
 
     /**
@@ -85,6 +86,15 @@ class Router
      */
     public function getMethod()
     {
-        return $this->method ? $this->method : 'index';
+        return $this->method ?: $this->getConfig()->get('default_method');
+    }
+
+    /**
+     * Get the parameters
+     * @return array
+     */
+    public function getParams()
+    {
+        return $this->params ?: array();
     }
 }

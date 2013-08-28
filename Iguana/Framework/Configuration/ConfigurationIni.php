@@ -20,6 +20,11 @@ class ConfigurationIni implements Configuration
     private static $configObjects = [];
 
     /**
+     * @var string Group for each keypair to be under
+     */
+    public $group;
+
+    /**
      * @var \ezcConfiguration
      * The config for this particular instance
      */
@@ -57,13 +62,12 @@ class ConfigurationIni implements Configuration
 
     /**
      * Put a value into a group / key pair.
-     * @param string $group
      * @param string $key
      * @param string $value
      */
-    public function put($group, $key, $value)
+    public function put($key, $value)
     {
-        $this->config->setSetting($group, $key, $value);
+        $this->config->setSetting($this->group, $key, $value);
 
         //write our changes to disk.
         $writer = new \ezcConfigurationIniWriter();
@@ -73,12 +77,21 @@ class ConfigurationIni implements Configuration
 
     /**
      * Get a value from a group / key pair.
-     * @param string $group
      * @param string $key
      * @return string
      */
-    public function get($group, $key)
+    public function get($key)
     {
-        return $this->config->getStringSetting($group, $key);
+        return $this->config->getStringSetting($this->group, $key);
+    }
+
+    /**
+     * Set a group for all subsequent reads and writes so multiple things can use the same keys
+     * @param string $group
+     * @return void
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
     }
 }
