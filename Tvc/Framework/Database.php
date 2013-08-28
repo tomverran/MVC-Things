@@ -22,16 +22,29 @@ class Database extends Facade {
     /**
      * @var \PDO
      */
+    private static $defaultDb;
+
+    /**
+     * @var \PDO
+     */
     private $db;
 
     /**
-     * Construct our DBAL
+     * Construct our Database
+     * @param \Framework\Configuration\Configuration|null $config Optional alternative config to use
      */
-    public function __construct()
+    public function __construct($config = null)
     {
-        $config = self::getConfig();
-        $dsn = $config->get('driver') . ':host=' . $config->get('host') . ';dbname=' . $config->get('dbname');
-        $this->db = new \PDO($dsn, $config->get('user'), $config->get('password'));
+        $db = &$this->db;
+        if (!$config && !self::$defaultDb) {
+            $config = $this->getConfig();
+            $db = &self::$defaultDb;
+        }
+
+        if ($config) {
+            $dsn = $config->get('driver') . ':host=' . $config->get('host') . ';dbname=' . $config->get('dbname');
+            $db = new \PDO($dsn, $config->get('user'), $config->get('password'));
+        }
     }
 
     /**
@@ -42,7 +55,7 @@ class Database extends Facade {
      */
     public function query($query, $fetchMode = \PDO::FETCH_ASSOC)
     {
-        $statement = $this->db->prepare($query->compile());
+        $statement = $this->getAdapter()->prepare($query->compile());
         $statement->setFetchMode($fetchMode);
         $statement->execute($query->getParams());
         return $statement;
@@ -54,6 +67,6 @@ class Database extends Facade {
      */
     public function getAdapter()
     {
-        return $this->db;
+        return $this->db ?: self::$defaultDb;
     }
 }

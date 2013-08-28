@@ -3,7 +3,7 @@ header('Content-type: text/html; charset=UTF-8');
 
 //we need to setup the include path for ViewScript including relative to outside the web root
 $upOneLevel = dirname(__FILE__) . DIRECTORY_SEPARATOR . '../';
-set_include_path(get_include_path() . PATH_SEPARATOR . $upOneLevel . PATH_SEPARATOR . $upOneLevel . 'Iguana');
+set_include_path(get_include_path() . PATH_SEPARATOR . $upOneLevel . PATH_SEPARATOR . $upOneLevel . 'Tvc');
 
 //Create an instance of our loader.
 require('../vendor/autoload.php');
