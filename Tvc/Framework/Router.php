@@ -45,6 +45,9 @@ class Router
             $urlParts = explode('/',$uri);
         }
 
+        //remove any blank URL parts.
+        $urlParts = array_filter($urlParts);
+
         if (!empty($urlParts)) {
             $this->controller = array_shift($urlParts);
         }

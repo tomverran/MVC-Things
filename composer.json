@@ -8,10 +8,10 @@
 
     "autoload": {
         "psr-0": {
-            "Model": "Iguana/Application",
-            "Library": "Iguana/Application",
-            "Controller": "Iguana/Application",
-            "Framework": "Iguana/"
+            "Model": "Tvc/Application",
+            "Library": "Tvc/Application",
+            "Controller": "Tvc/Application",
+            "Framework": "Tvc/"
         }
     },
 

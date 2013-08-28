@@ -16,8 +16,6 @@ class Index
      */
     private $view;
 
-    private $model;
-
     /**
      * Construct this test controller,
      * grabbing framework singletons and
@@ -28,7 +26,6 @@ class Index
         $this->view = new View();
         $this->view->addScript('Header.phtml');
         $this->view['url'] = Router::getInstance()->getConfig()->get('base_url');
-        $this->model = new Test();
     }
 
     /**
@@ -36,9 +33,9 @@ class Index
      */
     public function index()
     {
-        var_dump($this->model->doSomething());
         $this->view['method'] = Router::getInstance()->getMethod();
         $this->view['controller'] = Router::getInstance()->getController();
+        $this->view['params'] = Router::getInstance()->getParams();
         $this->view->addScript('Test.phtml');
     }
 
