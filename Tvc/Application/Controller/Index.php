@@ -2,7 +2,6 @@
 namespace Controller;
 use Framework\Router;
 use Library\View;
-use Model\Test;
 
 /**
  * An example controller. We don't extend any base classes here
@@ -20,10 +19,11 @@ class Index
      * Construct this test controller,
      * grabbing framework singletons and
      * outputting a header view.
+     * @param \Library\View $view
      */
-    public function __construct()
+    public function __construct($view)
     {
-        $this->view = new View();
+        $this->view = $view;
         $this->view->addScript('Header.phtml');
         $this->view['url'] = Router::getInstance()->getConfig()->get('base_url');
     }

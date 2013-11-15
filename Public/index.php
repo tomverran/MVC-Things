@@ -2,7 +2,7 @@
 header('Content-type: text/html; charset=UTF-8');
 
 //we need to setup the include path for ViewScript including relative to outside the web root
-$upOneLevel = dirname(__FILE__) . DIRECTORY_SEPARATOR . '../';
+$upOneLevel = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
 set_include_path(get_include_path() . PATH_SEPARATOR . $upOneLevel . PATH_SEPARATOR . $upOneLevel . 'Tvc');
 
 //Create an instance of our loader.
@@ -15,13 +15,12 @@ $uriController = 'Controller\\'.$router->getController();
 //create controller
 if (class_exists($uriController)) {
 
-    $rc = new ReflectionClass($uriController);
-    $uriMethod = $router->getMethod();
+    $injector = new \tomverran\di\Injector();
+    $instance = $injector->resolve($uriController);
 
     //invoke our action method on our controller
-    if (!$rc->isAbstract() && $rc->hasMethod($uriMethod) && $rc->getMethod($uriMethod)->isPublic()) {
-        $controller = $rc->newInstance();
-        $rc->getMethod($uriMethod)->invokeArgs($controller,array());
+    if (is_callable(array($instance, $router->getMethod()))) {
+        call_user_func_array(array($instance, $router->getMethod()), array());
         $ran = true;
     }
 }
