@@ -16,8 +16,9 @@ namespace Framework;
  */
 class Application
 {
+    const BEFORE_ACTION = 'afterAction';
 
-    const SUCCESS = 'afterSuccess';
+    const AFTER_ACTION = 'afterAction';
 
     const NOT_FOUND = 'onNotFound';
 

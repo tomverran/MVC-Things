@@ -26,12 +26,13 @@ if (class_exists($uriController)) {
 
     //invoke our action method on our controller
     if (is_callable(array($instance, $router->getMethod()))) {
+        $application->fire(Application::BEFORE_ACTION);
         call_user_func_array(array($instance, $router->getMethod()), array());
-        $application->fire(Application::SUCCESS);
+        $application->fire(Application::AFTER_ACTION);
     }
 }
 
 //basic 404 page
-if (!$application->fired(Application::SUCCESS)) {
+if (!$application->fired(Application::AFTER_ACTION)) {
     $application->fire(Application::NOT_FOUND);
 }
