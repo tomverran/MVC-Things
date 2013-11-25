@@ -16,8 +16,6 @@ $application = new Application();
 $router = Framework\Router::getInstance();
 $uriController = 'Controller\\'.$router->getController();
 
-ob_start();
-
 //create controller
 if (class_exists($uriController)) {
 
