@@ -1,4 +1,17 @@
 {
+    "name": "tomverran/MVC-Things",
+    "type": "project",
+    "description": "MVC Framework",
+    "keywords": ["MVC", "Framework", "Dodgy"],
+    "homepage": "https://carefulcoder.co.uk",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tom Verran",
+            "homepage": "https://carefulcoder.co.uk",
+            "role": "Developer"
+        }
+    ],
     "repositories": [
         {
             "type": "composer",
