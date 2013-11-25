@@ -1,5 +1,6 @@
 <?php
 namespace Controller;
+use Framework\Application;
 use Framework\Router;
 use Library\View;
 
@@ -20,12 +21,19 @@ class Index
      * grabbing framework singletons and
      * outputting a header view.
      * @param \Library\View $view
+     * @param \Framework\Application $app
      */
-    public function __construct($view)
+    public function __construct(View $view, Application $app)
     {
         $this->view = $view;
         $this->view->addScript('Header.phtml');
         $this->view['url'] = Router::getInstance()->getConfig()->get('base_url');
+
+        //just an example of interacting with application events
+        $app->on(Application::SUCCESS, (function() use ($view) {
+            $view->addScript('Footer.phtml');
+            $view->render();
+        }));
     }
 
     /**
@@ -37,15 +45,5 @@ class Index
         $this->view['controller'] = Router::getInstance()->getController();
         $this->view['params'] = Router::getInstance()->getParams();
         $this->view->addScript('Test.phtml');
-    }
-
-    /**
-     * Destruct this Controller,
-     * outputting a footer.
-     */
-    public function __destruct()
-    {
-        $this->view->addScript('Footer.phtml');
-        $this->view->render();
     }
 }
