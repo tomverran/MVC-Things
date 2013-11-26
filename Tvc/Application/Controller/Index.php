@@ -3,6 +3,8 @@ namespace Controller;
 use Framework\Application;
 use Framework\Router;
 use Library\View;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * An example controller. We don't extend any base classes here
@@ -23,17 +25,11 @@ class Index
      * @param \Library\View $view
      * @param \Framework\Application $app
      */
-    public function __construct(View $view, Application $app)
+    public function __construct(View $view, Application $app, Request $request)
     {
         $this->view = $view;
         $this->view->addScript('Header.phtml');
-        $this->view['url'] = Router::getInstance()->getConfig()->get('base_url');
-
-        //just an example of interacting with application events
-        $app->on(Application::SUCCESS, (function() use ($view) {
-            $view->addScript('Footer.phtml');
-            $view->render();
-        }));
+        $this->view['url'] = $request->getBaseUrl();
     }
 
     /**
@@ -41,9 +37,10 @@ class Index
      */
     public function index()
     {
-        $this->view['method'] = Router::getInstance()->getMethod();
-        $this->view['controller'] = Router::getInstance()->getController();
-        $this->view['params'] = Router::getInstance()->getParams();
+        $this->view['method'] = 'no';
+        $this->view['controller'] = 'no';
+        $this->view['params'] = array('no');
         $this->view->addScript('Test.phtml');
+        return new Response($this->view->render());
     }
 }

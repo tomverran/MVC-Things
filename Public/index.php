@@ -1,5 +1,4 @@
 <?php
-header('Content-type: text/html; charset=UTF-8');
 
 //we need to setup the include path for ViewScript including relative to outside the web root
 $upOneLevel = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
@@ -7,32 +6,37 @@ set_include_path(get_include_path() . PATH_SEPARATOR . $upOneLevel . PATH_SEPARA
 
 //Create an instance of our loader.
 require('../vendor/autoload.php');
-use Framework\Application;
 
-//create an application instance to pass down via DI
-$application = new Application();
+//create a Symfony request object from PHP globals. This is pretty fancy.
+$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
-//handle URI routing
-$router = Framework\Router::getInstance();
-$uriController = 'Controller\\'.$router->getController();
+//create an event dispatcher, also a Symfony thing to mediate events etc
+$dispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
 
-//create controller
-if (class_exists($uriController)) {
+//like Symfony we listen on kernel.request and do routing then
+$dispatcher->addSubscriber(new \Framework\Router());
 
-    $injector = new \tomverran\di\Injector();
-    $injector->bind($application);
-
-    $instance = $injector->resolve($uriController);
-
-    //invoke our action method on our controller
-    if (is_callable(array($instance, $router->getMethod()))) {
-        $application->fire(Application::BEFORE_ACTION);
-        call_user_func_array(array($instance, $router->getMethod()), array());
-        $application->fire(Application::AFTER_ACTION);
+//really temporary 404 handling. To be removed!
+$dispatcher->addListener('kernel.exception', function(\Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent $e) {
+    if ($e->getException() instanceof \Framework\Exception\NotFound) {
+        $e->setResponse( new \Symfony\Component\HttpFoundation\Response('Not Found') );
+        return;
     }
-}
+    throw $e->getException();
+});
 
-//basic 404 page
-if (!$application->fired(Application::AFTER_ACTION)) {
-    $application->fire(Application::NOT_FOUND);
-}
+//create our DI injector and bind the above instances
+$injector = new \tomverran\di\Injector();
+$injector->bind($dispatcher);
+$injector->bind($request);
+
+//finally create the controller resolver
+$resolver = new \Framework\Resolver($injector);
+
+//create our "HTTP Kernel" that uses the dispatcher & resolver to get things done
+$kernel = new \Symfony\Component\HttpKernel\HttpKernel($dispatcher, $resolver);
+$response = $kernel->handle($request);
+$response->send();
+
+//fire the terminate event
+$kernel->terminate($request, $response);

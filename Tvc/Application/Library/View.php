@@ -89,14 +89,18 @@ class View implements \ArrayAccess
         }
     }
 
+
     /**
      * Render all of our scripts
      * in the order which they were supplied
+     * @return string
      */
     public function render()
     {
+        ob_start();
         foreach ($this->scripts as $script) {
             include 'Application' . DIRECTORY_SEPARATOR . 'View' . DIRECTORY_SEPARATOR . $script;
         }
+        return ob_get_clean();
     }
 }
