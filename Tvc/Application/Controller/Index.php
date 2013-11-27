@@ -23,9 +23,9 @@ class Index
      * grabbing framework singletons and
      * outputting a header view.
      * @param \Library\View $view
-     * @param \Framework\Application $app
+     * @param \Symfony\Component\HttpFoundation\Request $request
      */
-    public function __construct(View $view, Application $app, Request $request)
+    public function __construct(View $view, Request $request)
     {
         $this->view = $view;
         $this->view->addScript('Header.phtml');

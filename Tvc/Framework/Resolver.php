@@ -55,12 +55,12 @@ class Resolver implements ControllerResolverInterface
         //if it exists, resolve it
         if (class_exists($class)  ) {
             $instance = $this->injector->resolve($class);
-            if (is_callable($callable = array($instance, $request->attributes->get('method')))) {
-                return $callable;
+            if (method_exists($instance, $method = $request->attributes->get('method'))) {
+                return array($instance, $method);
             }
         }
 
-        throw new NotFound();
+        return false;
     }
 
     /**

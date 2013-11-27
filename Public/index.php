@@ -18,7 +18,7 @@ $dispatcher->addSubscriber(new \Framework\Router());
 
 //really temporary 404 handling. To be removed!
 $dispatcher->addListener('kernel.exception', function(\Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent $e) {
-    if ($e->getException() instanceof \Framework\Exception\NotFound) {
+    if ($e->getException() instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
         $e->setResponse( new \Symfony\Component\HttpFoundation\Response('Not Found') );
         return;
     }
