@@ -12,31 +12,21 @@ $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
 //create an event dispatcher, also a Symfony thing to mediate events etc
 $dispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
+$subscribers = array();
 
-//like Symfony we listen on kernel.request and do routing then
-$dispatcher->addSubscriber(new \Framework\Router());
-
-//really temporary 404 handling. To be removed!
-$dispatcher->addListener('kernel.exception', function(\Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent $e) {
-    if ($e->getException() instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
-        $e->setResponse( new \Symfony\Component\HttpFoundation\Response('Not Found') );
-        return;
-    }
-    throw $e->getException();
-});
+//include Subscribers from a config file
+require('Application/Config/Subscribers.php');
+foreach ($subscribers as $subscriber) {
+    $dispatcher->addSubscriber($subscriber);
+}
 
 //create our DI injector and bind the above instances
 $injector = new \tomverran\di\Injector();
 $injector->bind($dispatcher);
 $injector->bind($request);
 
-//create a configuration object which stores stuff grouped by classnames
-$configuration = new \Framework\Configuration\ConfigurationIni(dirname(__FILE__).'/../Tvc', 'Config');
-
-//return a decorated object with a default class name
-$injector->bind(function($class, $for) use(&$configuration) {
-    return new \Framework\Configuration\GroupDecorator($configuration, str_replace('\\', '_', $for));
-}, 'Framework\Configuration\Configuration');
+//dispatch the event to give any application subscribers a chance to bind dependencies
+$dispatcher->dispatch('tvc.bind', new \Framework\Event\BindClassesEvent($injector));
 
 //finally create the controller resolver
 $resolver = new \Framework\Resolver($injector);
