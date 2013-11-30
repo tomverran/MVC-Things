@@ -12,12 +12,6 @@ namespace Framework\Configuration;
  */
 interface Configuration
 {
-    /**
-     * Set a group for all subsequent reads and writes so multiple things can use the same keys
-     * @param string $group
-     * @return void
-     */
-    public function setGroup($group);
 
     /**
      * Put a value into the configuration
@@ -25,12 +19,12 @@ interface Configuration
      * @param string $value The value
      * @return void
      */
-    public function put($key, $value);
+    public function put($key, $value, $group = null);
 
     /**
      * Get a value from the configuration
      * @param string $key The key
      * @return string The value
      */
-    public function get($key);
+    public function get($key, $group = null);
 }

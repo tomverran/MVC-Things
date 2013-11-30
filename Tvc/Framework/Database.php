@@ -5,6 +5,7 @@
  * @since 27/08/13
  */
 namespace Framework;
+use Framework\Configuration\Configuration;
 use Peyote\Facade;
 use Peyote\Select;
 use Peyote\Update;
@@ -16,8 +17,6 @@ use Peyote\Delete;
  * @package Framework
  */
 class Database extends Facade {
-
-    use Configurable;
 
     /**
      * @var \PDO
@@ -31,13 +30,12 @@ class Database extends Facade {
 
     /**
      * Construct our Database
-     * @param \Framework\Configuration\Configuration|null $config Optional alternative config to use
+     * @param \Framework\Configuration\Configuration $config config to use
      */
-    public function __construct($config = null)
+    public function __construct(Configuration $config)
     {
         $db = &$this->db;
         if (!$config && !self::$defaultDb) {
-            $config = $this->getConfig();
             $db = &self::$defaultDb;
         }
 

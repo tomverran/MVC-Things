@@ -7,11 +7,8 @@
 
 namespace Framework;
 
-
-use Framework\Exception\NotFound;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
-use Symfony\Component\Process\Exception\LogicException;
 use tomverran\di\Injector;
 
 class Resolver implements ControllerResolverInterface
@@ -44,8 +41,6 @@ class Resolver implements ControllerResolverInterface
      *
      * @return callable|false A PHP callable representing the Controller,
      *                        or false if this resolver is not able to determine the controller
-     *
-     * @throws \Framework\Exception\NotFound If the controller can't be found
      */
     public function getController(Request $request)
     {
@@ -75,6 +70,6 @@ class Resolver implements ControllerResolverInterface
      */
     public function getArguments(Request $request, $controller)
     {
-        return array();
+        return $request->attributes->get('args');
     }
 }

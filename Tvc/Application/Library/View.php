@@ -1,5 +1,6 @@
 <?php
 namespace Library;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * A simple helper class to allow

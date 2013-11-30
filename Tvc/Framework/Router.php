@@ -1,7 +1,6 @@
 <?php
 namespace Framework;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
 /**
@@ -10,28 +9,23 @@ use Symfony\Component\HttpKernel\Event\GetResponseEvent;
  */
 class Router implements EventSubscriberInterface
 {
-    use Configurable;
 
     /**
-     * Parse $_SERVER['REQUEST_URI'] extracting
+     * Parse the request URL extracting
      * controller and method routing information.
      */
     public function parse(GetResponseEvent $event)
     {
-        $request = $event->getRequest();
-        $uri = $request->getSchemeAndHttpHost() . $request->getRequestUri();
-        $uri = str_replace($this->getConfig()->get('base_url'),'',$uri);
+        $req = $event->getRequest();
+        $uri = str_replace(array($req->getBaseUrl(), '?' . $req->getQueryString()), '',$req->getRequestUri());
+        $urlParts = preg_split('#/#', $uri, -1, PREG_SPLIT_NO_EMPTY);
 
-        if ($pos = strpos($uri,'?')!==false) {
-            $urlParts = explode('/',substr($uri,0,$pos));
-        } else {
-            $urlParts = explode('/',$uri);
-        }
+        //grab our controller, args and method from the URL or set them to '' if empty
+        list($controller, $method) = ($parts = array_replace(array('',''), $urlParts));
+        $req->attributes->set('args', array_slice($parts,2));
+        $req->attributes->set('controller', $controller);
+        $req->attributes->set('method', $method);
 
-        //remove any blank URL parts.
-        list($controller, $method) = array_values(array_filter($urlParts));
-        $request->attributes->set('controller', $controller);
-        $request->attributes->set('method', $method);
     }
 
     /**

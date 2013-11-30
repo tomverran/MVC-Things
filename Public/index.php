@@ -30,6 +30,14 @@ $injector = new \tomverran\di\Injector();
 $injector->bind($dispatcher);
 $injector->bind($request);
 
+//create a configuration object which stores stuff grouped by classnames
+$configuration = new \Framework\Configuration\ConfigurationIni(dirname(__FILE__).'/../Tvc', 'Config');
+
+//return a decorated object with a default class name
+$injector->bind(function($class, $for) use(&$configuration) {
+    return new \Framework\Configuration\GroupDecorator($configuration, str_replace('\\', '_', $for));
+}, 'Framework\Configuration\Configuration');
+
 //finally create the controller resolver
 $resolver = new \Framework\Resolver($injector);
 

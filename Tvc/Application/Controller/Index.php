@@ -3,6 +3,7 @@ namespace Controller;
 use Framework\Application;
 use Framework\Router;
 use Library\View;
+use Model\Test;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
