@@ -10,6 +10,7 @@ use Peyote\Facade;
 use Peyote\Select;
 use Peyote\Update;
 use Peyote\Delete;
+use Peyote\Insert;
 
 
 /**
@@ -40,14 +41,26 @@ class Database extends Facade {
         }
 
         if ($config) {
-            $dsn = $config->get('driver') . ':host=' . $config->get('host') . ';dbname=' . $config->get('dbname');
+            $dbName = $config->get('dbname');
+            $dbDsn = $dbName ? ';dbname='.$dbName : ';';
+
+            $dsn = $config->get('driver') . ':host=' . $config->get('host') . $dbDsn;
             $db = new \PDO($dsn, $config->get('user'), $config->get('password'));
         }
     }
 
     /**
+     * Query a raw sql string
+     * @param $query
+     */
+    public function queryString($query)
+    {
+        $this->getAdapter()->query($query);
+    }
+
+    /**
      * Execute a Peyote query
-     * @param Select|Update|Delete $query
+     * @param Select|Update|Insert|Delete $query
      * @param int $fetchMode One of the PDO::FETCH_* consts.
      * @return \PDOStatement
      */

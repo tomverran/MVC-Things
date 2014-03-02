@@ -23,7 +23,7 @@ class Subscriber implements EventSubscriberInterface
     public function bindConfiguration(BindClassesEvent $e)
     {
         //create a configuration object which stores stuff grouped by classnames
-        $configuration = new ConfigurationIni(dirname(__FILE__).'/../Tvc/Application/Config', 'Production');
+        $configuration = new ConfigurationIni(dirname(__FILE__).'/../../Application/Config', 'Production');
 
         //return a decorated object with a default class name
         $e->getInjector()->bind(function($class, $for) use(&$configuration) {
@@ -54,6 +54,6 @@ class Subscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array('tvc.injector' => 'bindConfiguration');
+        return array('tvc.bind' => 'bindConfiguration');
     }
 }
