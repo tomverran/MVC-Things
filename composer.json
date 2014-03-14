@@ -24,6 +24,7 @@
             "Model": "Tvc/Application",
             "Library": "Tvc/Application",
             "Controller": "Tvc/Application",
+            "Form": "Tvc/Application",
             "Framework": "Tvc/"
         }
     },
@@ -32,10 +33,9 @@
         "symfony/http-kernel": "dev-master",
         "zetacomponents/base": "dev-master",
         "zetacomponents/configuration": "1.3.5",
-        "kriswallsmith/assetic": "1.2.*@dev",
         "davewid/peyote": "0.6.*",
         "tomverran/di": "dev-master",
-        "jenwachter/html-form": "dev-master"
+        "tomverran/form": "dev-master"
     },
 
     "config": {
