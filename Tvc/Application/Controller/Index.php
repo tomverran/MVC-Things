@@ -36,7 +36,7 @@ class Index
     /**
      * Index methods are called when no other is supplied.
      */
-    public function index()
+    public function index( View $request )
     {
         $this->view['method'] = 'no';
         $this->view['controller'] = 'no';

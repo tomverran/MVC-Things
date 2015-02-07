@@ -7,23 +7,24 @@
 
 namespace Framework;
 
+use Interop\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
-use tomverran\di\Injector;
+use ReflectionParameter;
 
 class Resolver implements ControllerResolverInterface
 {
     /**
-     * @var \tomverran\di\Injector
+     * @var ContainerInterface
      */
     private $injector;
 
     /**
      * Construct this resolver with a DI injector
      * which is used to do the instantiation
-     * @param Injector $injector
+     * @param ContainerInterface $injector
      */
-    public function __construct( Injector $injector )
+    public function __construct( ContainerInterface $injector )
     {
         $this->injector = $injector;
     }
@@ -42,15 +43,15 @@ class Resolver implements ControllerResolverInterface
      * @return callable|false A PHP callable representing the Controller,
      *                        or false if this resolver is not able to determine the controller
      */
-    public function getController(Request $request)
+    public function getController( Request $request )
     {
         //append on our controller namespace to find the actual class
-        $class = 'Controller\\'.$request->attributes->get('controller');
+            $class = 'Controller\\'.ucfirst( strtolower( $request->attributes->get('controller') ) );
 
         //if it exists, resolve it
         if (class_exists($class)  ) {
-            $instance = $this->injector->resolve($class);
-            if (method_exists($instance, $method = $request->attributes->get('method'))) {
+            $instance = $this->injector->get($class);
+            if (method_exists($instance, $method = $request->attributes->get('method') ?: 'index')) {
                 return array($instance, $method);
             }
         }
@@ -68,8 +69,47 @@ class Resolver implements ControllerResolverInterface
      *
      * @throws \RuntimeException When value for argument given is not provided
      */
-    public function getArguments(Request $request, $controller)
+    public function getArguments( Request $request, $controller )
     {
-        return $request->attributes->get('args');
+        $parameters = $this->getControllerParameters( $controller );
+        $arguments = $this->instantiateParameters( $parameters );
+        return $arguments;
+    }
+
+    /**
+     * @param $controller
+     * @return \ReflectionParameter[]
+     */
+    private function getControllerParameters($controller)
+    {
+        if (is_array($controller)) {
+            $rm = (new \ReflectionMethod(get_class($controller[0]), $controller[1]));
+            $parameters = $rm->getParameters();
+            return $parameters;
+        } else {
+            $rf = new \ReflectionFunction($controller);
+            $parameters = $rf->getParameters();
+            return $parameters;
+        }
+    }
+
+    /**
+     * @param ReflectionParameter[] $parameters
+     * @return array
+     */
+    private function instantiateParameters($parameters)
+    {
+        $arguments = [];
+        foreach ($parameters as $parameter) {
+            if ($parameter->getClass()) {
+                $arguments[] = $this->injector->get($parameter->getClass());
+            } else if ($parameter->getDefaultValue()) {
+                $arguments[] = $parameter->getDefaultValue();
+            } else {
+                throw new \InvalidArgumentException('Unable to call method - ambiguous parameters');
+            }
+
+        }
+        return $arguments;
     }
 }
