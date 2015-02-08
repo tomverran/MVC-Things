@@ -11,6 +11,7 @@ use Interop\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 use ReflectionParameter;
+use TomVerran\ParameterResolver;
 
 class Resolver implements ControllerResolverInterface
 {
@@ -20,13 +21,20 @@ class Resolver implements ControllerResolverInterface
     private $injector;
 
     /**
+     * @var ParameterResolver
+     */
+    private $resolver;
+
+    /**
      * Construct this resolver with a DI injector
      * which is used to do the instantiation
      * @param ContainerInterface $injector
+     * @param ParameterResolver $resolver
      */
-    public function __construct( ContainerInterface $injector )
+    public function __construct( ContainerInterface $injector, ParameterResolver $resolver )
     {
         $this->injector = $injector;
+        $this->resolver = $resolver;
     }
 
     /**
@@ -46,7 +54,8 @@ class Resolver implements ControllerResolverInterface
     public function getController( Request $request )
     {
         //append on our controller namespace to find the actual class
-            $class = 'Controller\\'.ucfirst( strtolower( $request->attributes->get('controller') ) );
+        $controllerName = $request->attributes->get('controller') ?: 'index';
+        $class = 'Controller\\'.ucfirst( strtolower( $controllerName ) );
 
         //if it exists, resolve it
         if (class_exists($class)  ) {
@@ -72,7 +81,7 @@ class Resolver implements ControllerResolverInterface
     public function getArguments( Request $request, $controller )
     {
         $parameters = $this->getControllerParameters( $controller );
-        $arguments = $this->instantiateParameters( $parameters );
+        $arguments = $this->resolver->resolveParameters( $parameters );
         return $arguments;
     }
 
@@ -91,25 +100,5 @@ class Resolver implements ControllerResolverInterface
             $parameters = $rf->getParameters();
             return $parameters;
         }
-    }
-
-    /**
-     * @param ReflectionParameter[] $parameters
-     * @return array
-     */
-    private function instantiateParameters($parameters)
-    {
-        $arguments = [];
-        foreach ($parameters as $parameter) {
-            if ($parameter->getClass()) {
-                $arguments[] = $this->injector->get($parameter->getClass());
-            } else if ($parameter->getDefaultValue()) {
-                $arguments[] = $parameter->getDefaultValue();
-            } else {
-                throw new \InvalidArgumentException('Unable to call method - ambiguous parameters');
-            }
-
-        }
-        return $arguments;
     }
 }

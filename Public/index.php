@@ -29,7 +29,8 @@ $injector->bind($request);
 $dispatcher->dispatch('tvc.bind', new \Framework\Event\BindClassesEvent($injector));
 
 //finally create the controller resolver
-$resolver = new \Framework\Resolver($injector);
+$paramResolver = new \TomVerran\ContainerParameterResolver( $injector );
+$resolver = new \Framework\Resolver( $injector, $paramResolver );
 
 //create our "HTTP Kernel" that uses the dispatcher & resolver to get things done
 $kernel = new \Symfony\Component\HttpKernel\HttpKernel($dispatcher, $resolver);
