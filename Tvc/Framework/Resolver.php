@@ -26,15 +26,22 @@ class Resolver implements ControllerResolverInterface
     private $resolver;
 
     /**
+     * @var Router
+     */
+    private $router;
+
+    /**
      * Construct this resolver with a DI injector
      * which is used to do the instantiation
      * @param ContainerInterface $injector
      * @param ParameterResolver $resolver
+     * @param Router $r
      */
-    public function __construct( ContainerInterface $injector, ParameterResolver $resolver )
+    public function __construct( ContainerInterface $injector, ParameterResolver $resolver, Router $r )
     {
         $this->injector = $injector;
         $this->resolver = $resolver;
+        $this->router = $r;
     }
 
     /**
@@ -54,14 +61,14 @@ class Resolver implements ControllerResolverInterface
     public function getController( Request $request )
     {
         //append on our controller namespace to find the actual class
-        $controllerName = $request->attributes->get('controller') ?: 'index';
-        $class = 'Controller\\'.ucfirst( strtolower( $controllerName ) );
+        $controllerName = $this->router->getController();
+        $method = $this->router->getMethod();
 
         //if it exists, resolve it
-        if (class_exists($class)  ) {
-            $instance = $this->injector->get($class);
-            if (method_exists($instance, $method = $request->attributes->get('method') ?: 'index')) {
-                return array($instance, $method);
+        if ( $this->injector->has( $controllerName ) ) {
+            $instance = $this->injector->get( $controllerName );
+            if ( method_exists($instance, $method ) ) {
+                return [$instance, $method];
             }
         }
 

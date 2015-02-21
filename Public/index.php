@@ -1,41 +1,38 @@
 <?php
 
-//we need to setup the include path for ViewScript including relative to outside the web root
+use Framework\Resolver;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
+use Symfony\Component\HttpKernel\HttpKernel;
+use TomVerran\Di\AggregateContainer;
+use TomVerran\Di\Registry\InterfaceRegistry;
+use TomVerran\Di\Registry\SingletonRegistry;
+
 $upOneLevel = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
 set_include_path(get_include_path() . PATH_SEPARATOR . $upOneLevel . PATH_SEPARATOR . $upOneLevel . 'Tvc');
 
 //Create an instance of our loader.
 require('../vendor/autoload.php');
 
-//create a Symfony request object from PHP globals. This is pretty fancy.
-$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+$request = Request::createFromGlobals();
+$injector = new AggregateContainer;
+$dispatcher = new EventDispatcher;
 
-//create an event dispatcher, also a Symfony thing to mediate events etc
-$dispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
-$subscribers = array();
+/** @var InterfaceRegistry $interfaces */
+$interfaces = $injector->get( InterfaceRegistry::class );
+$interfaces->add( ControllerResolverInterface::class, Resolver::class );
 
-//include Subscribers from a config file
-require('Application/Config/Subscribers.php');
-foreach ($subscribers as $subscriber) {
-    $dispatcher->addSubscriber($subscriber);
-}
+/** @var SingletonRegistry $singletons */
+$singletons = $injector->get( SingletonRegistry::class );
+$singletons->add( EventDispatcherInterface::class, $dispatcher );
+$singletons->add( Request::class, $request );
 
-//create our DI injector and bind the above instances
-$injector = new \tomverran\di\Injector();
-$injector->bind($dispatcher);
-$injector->bind($request);
-
-//dispatch the event to give any application subscribers a chance to bind dependencies
-$dispatcher->dispatch('tvc.bind', new \Framework\Event\BindClassesEvent($injector));
-
-//finally create the controller resolver
-$paramResolver = new \TomVerran\ContainerParameterResolver( $injector );
-$resolver = new \Framework\Resolver( $injector, $paramResolver );
-
-//create our "HTTP Kernel" that uses the dispatcher & resolver to get things done
-$kernel = new \Symfony\Component\HttpKernel\HttpKernel($dispatcher, $resolver);
-$response = $kernel->handle($request);
+/** @var HttpKernel $kernel */
+$kernel = $injector->get( HttpKernel::class );
+$response = $kernel->handle( $request );
 $response->send();
 
 //fire the terminate event
-$kernel->terminate($request, $response);
+$kernel->terminate( $request, $response );

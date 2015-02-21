@@ -34,9 +34,8 @@
         "zetacomponents/base": "dev-master",
         "zetacomponents/configuration": "1.3.5",
         "davewid/peyote": "0.6.*",
-        "tomverran/di": "dev-master",
-        "tomverran/form": "dev-master",
-        "tomverran/parameter-resolver": "dev-master"
+        "tomverran/di": "dev-split-up-containers",
+        "tomverran/form": "dev-master"
     },
 
     "config": {

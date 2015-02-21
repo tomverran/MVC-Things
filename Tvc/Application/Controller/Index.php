@@ -15,33 +15,27 @@ use Symfony\Component\HttpFoundation\Response;
 class Index
 {
     /**
-     * @var \Library\View
+     * Index methods are called when no other is supplied.
+     * @param View $view
+     * @param Request $r
+     * @return Response
      */
-    private $view;
-
-    /**
-     * Construct this test controller,
-     * grabbing framework singletons and
-     * outputting a header view.
-     * @param \Library\View $view
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     */
-    public function __construct(View $view, Request $request)
+    public function index( View $view, Request $r )
     {
-        $this->view = $view;
-        $this->view->addScript('Header.phtml');
-        $this->view['url'] = $request->getBaseUrl();
+        $view['method'] = 'index';
+        $view['url'] = $r->getBaseUrl();
+        $view['controller'] = get_called_class();
+        $view['params'] = $r->getQueryString();
+
+        $view->addScript( 'Header.phtml' );
+        $view->addScript( 'Test.phtml' );
+        $view->addScript( 'Footer.phtml' );
+        return new Response( $view->render() );
     }
 
-    /**
-     * Index methods are called when no other is supplied.
-     */
-    public function index( View $request )
+    public function test( Response $r )
     {
-        $this->view['method'] = 'no';
-        $this->view['controller'] = 'no';
-        $this->view['params'] = array('no');
-        $this->view->addScript('Test.phtml');
-        return new Response($this->view->render());
+        $r->setContent( "hi world" );
+        return $r;
     }
 }

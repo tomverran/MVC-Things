@@ -1,55 +1,68 @@
 <?php
 namespace Framework;
+use Controller\Index;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
 /**
  * A Router class that tells the bootstrap what to execute
  * based on the URI the user has accessed the framework with
  */
-class Router implements EventSubscriberInterface
+class Router
 {
+    /**
+     * @var Request
+     */
+    private $request;
 
+    /**
+     * @var string
+     */
+    private $controller;
+
+    /**
+     * @var string
+     */
+    private $method;
+
+    /**
+     * @param Request $r
+     */
+    public function __construct( Request $r )
+    {
+        $this->request = $r;
+        $this->parse();
+    }
     /**
      * Parse the request URL extracting
      * controller and method routing information.
      */
-    public function parse(GetResponseEvent $event)
+    public function parse()
     {
-        $req = $event->getRequest();
-        $uri = str_replace(array($req->getBaseUrl(), '?' . $req->getQueryString()), '',$req->getRequestUri());
-        $urlParts = preg_split('#/#', $uri, -1, PREG_SPLIT_NO_EMPTY);
+        $req = $this->request;
+        $uri = str_replace([$req->getBaseUrl(), '?' . $req->getQueryString()], '', $req->getRequestUri() );
+        $urlParts = preg_split( '#/#', $uri, -1, PREG_SPLIT_NO_EMPTY );
 
         //grab our controller, args and method from the URL or set them to '' if empty
-        list($controller, $method) = ($parts = array_replace(array('',''), $urlParts));
-        $req->attributes->set('args', array_slice($parts,2));
-        $req->attributes->set('controller', $controller);
-        $req->attributes->set('method', $method);
+        list( $this->controller, $this->method ) = ( $parts = array_replace( ['',''], $urlParts ) );
+
 
     }
 
-    /**
-     * Returns an array of event names this subscriber wants to listen to.
-     *
-     * The array keys are event names and the value can be:
-     *
-     *  * The method name to call (priority defaults to 0)
-     *  * An array composed of the method name to call and the priority
-     *  * An array of arrays composed of the method names to call and respective
-     *    priorities, or 0 if unset
-     *
-     * For instance:
-     *
-     *  * array('eventName' => 'methodName')
-     *  * array('eventName' => array('methodName', $priority))
-     *  * array('eventName' => array(array('methodName1', $priority), array('methodName2'))
-     *
-     * @return array The event names to listen to
-     *
-     * @api
-     */
-    public static function getSubscribedEvents()
+    public function getController()
     {
-        return array('kernel.request' => 'parse');
+        if ( !$this->controller ) {
+            return Index::class;
+        }
+        return 'Controller\\' . ucfirst( $this->controller);
+    }
+
+    public function getMethod()
+    {
+        if ( !$this->method ) {
+            return 'index';
+        }
+        return $this->method;
     }
 }
